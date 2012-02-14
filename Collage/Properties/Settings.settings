@@ -1,0 +1,24 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Collage.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="FileDialogRootFolder" Type="System.Environment+SpecialFolder" Scope="Application">
+      <Value Profile="(Default)">MyPictures</Value>
+    </Setting>
+    <Setting Name="FileDialogSelectedPath" Type="System.Environment+SpecialFolder" Scope="Application">
+      <Value Profile="(Default)">MyPictures</Value>
+    </Setting>
+    <Setting Name="DefaultItemWidth" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="DefaultItemHeight" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="DefaultColsNo" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">2</Value>
+    </Setting>
+    <Setting Name="DefaultRowsNo" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">2</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
