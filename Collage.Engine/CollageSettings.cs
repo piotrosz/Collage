@@ -7,42 +7,43 @@ namespace Collage.Engine
 {
     public class CollageSettings
     {
-        private int tileHeight = 2; 
+        private int tileHeight = 2;
         private int tileWidth = 2;
         private int numberOfRows = 2;
         private int numberOfColumns = 2;
         private bool rotateAndFlipRandomly = false;
         private bool convertToGrayscale = false;
         List<string> inputImages = new List<string>();
+        private string outputDirectory = "";
 
-        public int TileHeight 
+        public int TileHeight
         {
             get { return tileHeight; }
             set { tileHeight = value; }
         }
 
-        public int TileWidth 
+        public int TileWidth
         {
             get { return tileWidth; }
             set { tileWidth = value; }
         }
 
-        public int NumberOfRows 
+        public int NumberOfRows
         {
             get { return numberOfRows; }
             set { numberOfRows = value; }
         }
 
-        public int NumberOfColumns 
+        public int NumberOfColumns
         {
             get { return numberOfColumns; }
             set { numberOfColumns = value; }
         }
 
-        public bool RotateAndFlipRandomly 
+        public bool RotateAndFlipRandomly
         {
             get { return rotateAndFlipRandomly; }
-            set { rotateAndFlipRandomly = value; } 
+            set { rotateAndFlipRandomly = value; }
         }
 
         public bool ConvertToGrayscale
@@ -51,10 +52,16 @@ namespace Collage.Engine
             set { convertToGrayscale = value; }
         }
 
-        public List<string> InputImages 
+        public List<string> InputImages
         {
             get { return inputImages; }
             set { inputImages = value; }
+        }
+
+        public string OutputDirectory
+        {
+            get { return outputDirectory; }
+            set { outputDirectory = value; }
         }
     }
 }

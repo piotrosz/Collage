@@ -10,7 +10,7 @@ namespace CollageConsole
     {
         const string programName = "collage";
 
-        static void Main(string [] args)
+        static void Main(string[] args)
         {
             bool showHelp = false;
             string inputDirectory = "", outputDirectory = "";
@@ -142,7 +142,7 @@ namespace CollageConsole
             }
             #endregion
 
-            if (tileHeightParsed && tileWidthParsed 
+            if (tileHeightParsed && tileWidthParsed
                 && numberOfColumnsParsed && numberOfRowsParsed
                 && inputDirectoryExists && outputDirectoryExists)
             {
@@ -168,17 +168,13 @@ namespace CollageConsole
                     TileHeight = tileHeight,
                     TileWidth = tileWidth,
                     RotateAndFlipRandomly = rotateAndFlipRandomly,
-                    ConvertToGrayscale = convertToGrayscale
+                    ConvertToGrayscale = convertToGrayscale,
+                    OutputDirectory = outputDirectory
                 };
 
                 var collage = new CollageEngine(collageSettings);
-
-                collage.OutputDir = outputDirectory;
-                string dirName = Path.Combine(inputDirectory, @"\temp");
-                Directory.CreateDirectory(dirName);
-                collage.TempImgDir = dirName;
-
                 string fileName = collage.CreateCollage();
+
                 Console.WriteLine("Collage saved: {0}", Path.Combine(outputDirectory, fileName));
             }
         }

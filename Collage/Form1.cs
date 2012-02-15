@@ -30,7 +30,6 @@ namespace Collage
         {
             if (imagesList != null && imagesList.Count > 0)
             {
-                ShowInformation("You have to be patient.");
                 var collageSettings = new CollageSettings
                 {
                     InputImages = imagesList,
@@ -38,11 +37,11 @@ namespace Collage
                     NumberOfRows = Convert.ToInt32(nudRows.Value),
                     TileHeight = Convert.ToInt32(nudItemHeight.Value),
                     TileWidth = Convert.ToInt32(nudItemWidth.Value),
-                    RotateAndFlipRandomly = cbCropAndFlip.Checked
+                    RotateAndFlipRandomly = cbCropAndFlip.Checked,
+                    OutputDirectory = folderBrowserDialog1.SelectedPath
                 };
 
                 var collage = new CollageEngine(collageSettings);
-                collage.OutputDir = folderBrowserDialog1.SelectedPath;
                 collage.CreateCollage();
 
                 ShowInformation("Done.");
@@ -55,14 +54,10 @@ namespace Collage
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //if (CollageEngine.CreateTempDir())
-            //    ShowInformation("Temp directory created.");
-           
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            //CollageEngine.DeleteTempFiles();
         }
 
         private void ShowInformation(string message)
