@@ -38,7 +38,8 @@ namespace Collage
                     TileHeight = Convert.ToInt32(nudItemHeight.Value),
                     TileWidth = Convert.ToInt32(nudItemWidth.Value),
                     RotateAndFlipRandomly = cbCropAndFlip.Checked,
-                    OutputDirectory = folderBrowserDialog1.SelectedPath
+                    OutputDirectory = folderBrowserDialog1.SelectedPath,
+                    ScalePercent = Convert.ToInt32(nudScalePercent.Value),
                 };
 
                 var collage = new CollageEngine(collageSettings);

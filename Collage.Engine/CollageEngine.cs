@@ -41,29 +41,32 @@ namespace Collage.Engine
 
                             using (Bitmap tile = (Bitmap)Bitmap.FromFile(Settings.InputImages[imageCounter]))
                             {
-                                if (this.Settings.RotateAndFlipRandomly)
-                                    tile.RotateFlipRandom(random);
+                                using (Bitmap tileScaled = tile.Scale(Settings.ScalePercent))
+                                {
+                                    if (this.Settings.RotateAndFlipRandomly)
+                                        tileScaled.RotateFlipRandom(random);
 
-                                if (tile.HorizontalResolution != graphics.DpiX || tile.VerticalResolution != graphics.DpiY)
-                                    tile.SetResolution(graphics.DpiX, graphics.DpiY);
+                                    if (tileScaled.HorizontalResolution != graphics.DpiX || tileScaled.VerticalResolution != graphics.DpiY)
+                                        tileScaled.SetResolution(graphics.DpiX, graphics.DpiY);
 
-                                int randomX = 0;
-                                int randomY = 0;
+                                    int randomX = 0;
+                                    int randomY = 0;
 
-                                if (tile.Width > Settings.TileWidth)
-                                    randomX = random.Next(0, tile.Width - Settings.TileWidth);
+                                    if (tileScaled.Width > Settings.TileWidth)
+                                        randomX = random.Next(0, tileScaled.Width - Settings.TileWidth);
 
-                                if (tile.Height > Settings.TileHeight)
-                                    randomX = random.Next(0, tile.Height - Settings.TileHeight);
+                                    if (tileScaled.Height > Settings.TileHeight)
+                                        randomX = random.Next(0, tileScaled.Height - Settings.TileHeight);
 
-                                graphics.DrawImage(
-                                    tile,
-                                    colsCounter * Settings.TileWidth,
-                                    rowsCounter * Settings.TileHeight,
-                                    new Rectangle(randomX, randomY, Settings.TileWidth, Settings.TileHeight),
-                                    GraphicsUnit.Pixel);
+                                    graphics.DrawImage(
+                                        tileScaled,
+                                        colsCounter * Settings.TileWidth,
+                                        rowsCounter * Settings.TileHeight,
+                                        new Rectangle(randomX, randomY, Settings.TileWidth, Settings.TileHeight),
+                                        GraphicsUnit.Pixel);
 
-                                imageCounter++;
+                                    imageCounter++;
+                                }
                             }
                         }
                     }

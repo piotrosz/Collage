@@ -15,6 +15,13 @@ namespace Collage.Engine
         private bool convertToGrayscale = false;
         List<string> inputImages = new List<string>();
         private string outputDirectory = "";
+        private int scalePercent = 50;
+
+        public int ScalePercent 
+        {
+            get { return scalePercent; }
+            set { scalePercent = value; }
+        }
 
         public int TileHeight
         {

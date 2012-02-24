@@ -36,19 +36,24 @@ namespace Collage.Engine
         // Remember to dispose Bitmap
         public static Bitmap Scale(this Image image, int width, int height)
         {
-            Bitmap bitmap = new Bitmap(width, height);
-
-            using (Graphics graphics = Graphics.FromImage(bitmap))
+            if (width < image.Width && height < image.Height)
             {
-                //set the resize quality modes to high quality
-                graphics.CompositingQuality = CompositingQuality.HighQuality;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                graphics.SmoothingMode = SmoothingMode.HighQuality;
-                //draw the image into the target bitmap
-                graphics.DrawImage(image, 0, 0, bitmap.Width, bitmap.Height);
-            }
+                Bitmap bitmap = new Bitmap(width, height);
 
-            return bitmap;
+                using (Graphics graphics = Graphics.FromImage(bitmap))
+                {
+                    //set the resize quality modes to high quality
+                    graphics.CompositingQuality = CompositingQuality.HighQuality;
+                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    graphics.SmoothingMode = SmoothingMode.HighQuality;
+                    //draw the image into the target bitmap
+                    graphics.DrawImage(image, 0, 0, bitmap.Width, bitmap.Height);
+                }
+
+                return bitmap;
+            }
+            else
+                return (Bitmap)image;
         }
 
         // Remember to dispose Bitmap
@@ -67,10 +72,12 @@ namespace Collage.Engine
             Bitmap bitmap = new Bitmap(destWidth, destHeight, PixelFormat.Format24bppRgb);
             bitmap.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
-            using (Graphics graphics = Graphics.FromImage(image))
+            using (Graphics graphics = Graphics.FromImage(bitmap))
             {
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+         
                 graphics.DrawImage(image,
                     new Rectangle(destX, destY, destWidth, destHeight),
                     new Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),

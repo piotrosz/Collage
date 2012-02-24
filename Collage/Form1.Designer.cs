@@ -42,10 +42,14 @@ namespace Collage
             this.cbCropAndFlip = new System.Windows.Forms.CheckBox();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.btnSelectOutputDir = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.nudScalePercent = new System.Windows.Forms.NumericUpDown();
             this.nudColumns = new System.Windows.Forms.NumericUpDown();
             this.nudRows = new System.Windows.Forms.NumericUpDown();
             this.nudItemHeight = new System.Windows.Forms.NumericUpDown();
             this.nudItemWidth = new System.Windows.Forms.NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)(this.nudScalePercent)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudColumns)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudRows)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudItemHeight)).BeginInit();
@@ -80,10 +84,12 @@ namespace Collage
             // 
             // listBox1
             // 
+            this.listBox1.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.listBox1.ForeColor = System.Drawing.SystemColors.InactiveBorder;
             this.listBox1.FormattingEnabled = true;
             this.listBox1.Location = new System.Drawing.Point(3, 2);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(311, 134);
+            this.listBox1.Size = new System.Drawing.Size(365, 134);
             this.listBox1.TabIndex = 2;
             // 
             // label1
@@ -148,7 +154,7 @@ namespace Collage
             // cbCropAndFlip
             // 
             this.cbCropAndFlip.AutoSize = true;
-            this.cbCropAndFlip.Location = new System.Drawing.Point(6, 224);
+            this.cbCropAndFlip.Location = new System.Drawing.Point(238, 200);
             this.cbCropAndFlip.Name = "cbCropAndFlip";
             this.cbCropAndFlip.Size = new System.Drawing.Size(116, 17);
             this.cbCropAndFlip.TabIndex = 14;
@@ -165,6 +171,43 @@ namespace Collage
             this.btnSelectOutputDir.TextAlign = System.Drawing.ContentAlignment.TopLeft;
             this.btnSelectOutputDir.UseVisualStyleBackColor = true;
             this.btnSelectOutputDir.Click += new System.EventHandler(this.btnSelectOutputDir_Click);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(238, 176);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(37, 13);
+            this.label7.TabIndex = 18;
+            this.label7.Text = "Scale:";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(323, 176);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(15, 13);
+            this.label8.TabIndex = 19;
+            this.label8.Text = "%";
+            // 
+            // nudScalePercent
+            // 
+            this.nudScalePercent.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Collage.Properties.Settings.Default, "DefaultItemWidth", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.nudScalePercent.Increment = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.nudScalePercent.Location = new System.Drawing.Point(281, 172);
+            this.nudScalePercent.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.nudScalePercent.Name = "nudScalePercent";
+            this.nudScalePercent.Size = new System.Drawing.Size(44, 20);
+            this.nudScalePercent.TabIndex = 22;
+            this.nudScalePercent.Value = global::Collage.Properties.Settings.Default.DefaultScalePercent;
             // 
             // nudColumns
             // 
@@ -247,7 +290,10 @@ namespace Collage
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.ClientSize = new System.Drawing.Size(319, 248);
+            this.ClientSize = new System.Drawing.Size(373, 227);
+            this.Controls.Add(this.nudScalePercent);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.label7);
             this.Controls.Add(this.btnSelectOutputDir);
             this.Controls.Add(this.cbCropAndFlip);
             this.Controls.Add(this.label6);
@@ -268,6 +314,7 @@ namespace Collage
             this.Text = "Collage";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.nudScalePercent)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudColumns)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudRows)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudItemHeight)).EndInit();
@@ -296,6 +343,9 @@ namespace Collage
         private System.Windows.Forms.CheckBox cbCropAndFlip;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.Button btnSelectOutputDir;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.NumericUpDown nudScalePercent;
     }
 }
 
