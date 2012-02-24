@@ -8,10 +8,8 @@ Simple application that creates collage of a given set of images.
 
 ### Console application ###
 
-`collage -i ~/Pictures -o ~ -th=10 -tw=10 -r=10 -c=10 -rf -g`
-
-no screenshot yet
+`mono collage.exe -i /home/piotr/Pictures/ -o /home/piotr/ -th=10 -tw=10 -r=10 -c=10 -rf -g`
 
 ### Windows forms application ###
 
-no screenshot yet
+![Collage on Linux](http://if.pw.edu.pl/~ludwik/CollageWindowsForms.png)
