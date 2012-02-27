@@ -56,7 +56,7 @@ namespace Collage.Engine
                                         randomX = random.Next(0, tileScaled.Width - Settings.TileWidth);
 
                                     if (tileScaled.Height > Settings.TileHeight)
-                                        randomX = random.Next(0, tileScaled.Height - Settings.TileHeight);
+                                        randomY = random.Next(0, tileScaled.Height - Settings.TileHeight);
 
                                     graphics.DrawImage(
                                         tileScaled,
