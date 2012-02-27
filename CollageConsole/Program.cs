@@ -1,8 +1,8 @@
 ﻿using System;
-using Collage.Engine;
+using System.IO;
 using System.Collections.Generic;
 using NDesk.Options;
-using System.IO;
+using Collage.Engine;
 
 namespace CollageConsole
 {
@@ -10,20 +10,88 @@ namespace CollageConsole
     {
         const string programName = "collage";
 
+        static bool showHelp = false;
+        static string inputDirectory = "", outputDirectory = "";
+        static int tileHeight = 5, tileWidth = 5;
+        static int numberOfRows = 5, numberOfColums = 5;
+        static bool rotateAndFlipRandomly = false;
+        static bool convertToGrayscale = false;
+        static int scalePercent = 50;
+
+        static bool tileHeightParsed = true, tileWidthParsed = true,
+            numberOfRowsParsed = true, numberOfColumnsParsed = true,
+            scalePercentParsed = true;
+
         static void Main(string[] args)
         {
-            bool showHelp = false;
-            string inputDirectory = "", outputDirectory = "";
-            int tileHeight = 5, tileWidth = 5;
-            int numberOfRows = 5, numberOfColums = 5;
-            bool rotateAndFlipRandomly = false;
-            bool convertToGrayscale = false;
+            var options = CreateOptions();
 
-            bool tileHeightParsed = true, tileWidthParsed = true,
-                numberOfRowsParsed = true, numberOfColumnsParsed = true;
-            bool inputDirectoryExists = true, outputDirectoryExists = true;
+            List<string> extra;
+            try
+            {
+                extra = options.Parse(args);
+            }
+            catch (OptionException e)
+            {
+                Console.Write("{0}: ", programName);
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Try `{0} --help' for more information.", programName);
+                return;
+            }
 
-            #region OptionSet
+            if (showHelp)
+            {
+                ShowHelp(options);
+                return;
+            }
+
+            if (!ValidateOptions())
+                return;
+
+            var imagesList = new List<string>();
+            imagesList.AddRange(Directory.GetFiles(inputDirectory, "*.jpg"));
+
+            if (imagesList.Count == 0)
+            {
+                DirectoryInfo dirInfo = new DirectoryInfo(inputDirectory);
+                Console.WriteLine("No images found in {0}.", dirInfo.FullName);
+                return;
+            }
+            else
+            {
+                Console.WriteLine("Number of images found: {0}", imagesList.Count);
+            }
+
+            var collageSettings = new CollageSettings
+            {
+                InputImages = imagesList,
+                NumberOfColumns = numberOfColums,
+                NumberOfRows = numberOfRows,
+                TileHeight = tileHeight,
+                TileWidth = tileWidth,
+                RotateAndFlipRandomly = rotateAndFlipRandomly,
+                ConvertToGrayscale = convertToGrayscale,
+                OutputDirectory = outputDirectory,
+                ScalePercent = scalePercent
+            };
+
+            var collage = new CollageEngine(collageSettings);
+            string fileName = collage.CreateCollage();
+
+            Console.WriteLine("Collage saved: {0}", Path.Combine(outputDirectory, fileName));
+        }
+
+        static void ShowHelp(OptionSet options)
+        {
+            Console.WriteLine("Usage: {0} [OPTIONS]", programName);
+            Console.WriteLine("Creates a very nice collage out of specified input images.");
+            Console.WriteLine();
+            Console.WriteLine("Options:");
+            options.WriteOptionDescriptions(Console.Out);
+        }
+
+        static OptionSet CreateOptions()
+        {
             var options = new OptionSet
             {
                 { 
@@ -94,98 +162,99 @@ namespace CollageConsole
                     "convert to grayscale.",
                     x => convertToGrayscale = x != null
                 },
+                {
+                    "s|scale=",
+                    "scale percent [0-100]% of every input image. Default is 50%.",
+                    x =>
+                    {
+                        int temp;
+                        if (int.TryParse(x, out temp) && temp > 0 && temp <= 100)
+                            scalePercent = temp;
+                        else
+                            scalePercentParsed = false;
+                    }
+                },
                 { 
                     "h|help",  
-                    "show this message and exit", 
+                    "show this message and exit.", 
                     x => showHelp = x != null 
                 }
             };
-            #endregion
+            return options;
+        }
 
-            #region Validation and help message
-            List<string> extra;
-            try
-            {
-                extra = options.Parse(args);
-            }
-            catch (OptionException e)
-            {
-                Console.Write("{0}: ", programName);
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Try `{0} --help' for more information.", programName);
-                return;
-            }
-
-            if (showHelp)
-            {
-                ShowHelp(options);
-                return;
-            }
+        static bool ValidateOptions()
+        {
+            bool result = true;
 
             if (!tileWidthParsed)
-                Console.WriteLine("Tile width must be a positive integer.");
+            {
+                ShowValidationError("Tile width must be a positive integer.");
+                result = false;
+            }
             if (!tileHeightParsed)
-                Console.WriteLine("Tile height must be a positive integer.");
+            {
+                ShowValidationError("Tile height must be a positive integer.");
+                result = false;
+            }
             if (!numberOfColumnsParsed)
-                Console.WriteLine("Number of rows must be a positive integer.");
+            {
+                ShowValidationError("Number of rows must be a positive integer.");
+                result = false;
+            }
             if (!numberOfRowsParsed)
-                Console.WriteLine("Number of columns must be a positive integer.");
+            {
+                ShowValidationError("Number of columns must be a positive integer.");
+                result = false;
+            }
+            if (!scalePercentParsed)
+            {
+                ShowValidationError("Scale percent must be an integer betweeen 0 and 100.");
+                result = false;
+            }
             if (!Directory.Exists(inputDirectory))
             {
-                inputDirectoryExists = false;
-                Console.WriteLine("Input directory does not exist.");
+                ShowValidationError("Input directory does not exist.");
+                result = false;
             }
             if (!Directory.Exists(outputDirectory))
             {
-                outputDirectoryExists = false;
-                Console.Write("Output directory does not exist.");
+                ShowValidationError("Output directory does not exist.");
+                result = false;
             }
-            #endregion
-
-            if (tileHeightParsed && tileWidthParsed
-                && numberOfColumnsParsed && numberOfRowsParsed
-                && inputDirectoryExists && outputDirectoryExists)
+            if (!tileHeightParsed)
             {
-                var imagesList = new List<string>();
-                imagesList.AddRange(Directory.GetFiles(inputDirectory, "*.jpg"));
-
-                if (imagesList.Count == 0)
-                {
-                    DirectoryInfo dirInfo = new DirectoryInfo(inputDirectory);
-                    Console.WriteLine("No images found in {0}.", dirInfo.FullName);
-                    return;
-                }
-                else
-                {
-                    Console.WriteLine("Number of images found: {0}", imagesList.Count);
-                }
-
-                var collageSettings = new CollageSettings
-                {
-                    InputImages = imagesList,
-                    NumberOfColumns = numberOfColums,
-                    NumberOfRows = numberOfRows,
-                    TileHeight = tileHeight,
-                    TileWidth = tileWidth,
-                    RotateAndFlipRandomly = rotateAndFlipRandomly,
-                    ConvertToGrayscale = convertToGrayscale,
-                    OutputDirectory = outputDirectory
-                };
-
-                var collage = new CollageEngine(collageSettings);
-                string fileName = collage.CreateCollage();
-
-                Console.WriteLine("Collage saved: {0}", Path.Combine(outputDirectory, fileName));
+                ShowValidationError("Tile height cannot be parsed.");
+                result = false;
             }
+            if (!tileWidthParsed)
+            {
+                ShowValidationError("Tile width cannot be parsed.");
+                result = false;
+            }
+            if (!numberOfColumnsParsed)
+            {
+                ShowValidationError("Number of columns cannot be parsed.");
+                result = false;
+            }
+            if (!numberOfRowsParsed)
+            {
+                ShowValidationError("Number of rows cannot be parsed.");
+                result = false;
+            }
+            if (!scalePercentParsed)
+            {
+                ShowValidationError("Scale percent cannot be parsed.");
+                result = false;
+            }
+            return result;
         }
 
-        static void ShowHelp(OptionSet options)
+        static void ShowValidationError(string message)
         {
-            Console.WriteLine("Usage: {0} [OPTIONS]", programName);
-            Console.WriteLine("Creates a very nice collage out of specified input images.");
-            Console.WriteLine();
-            Console.WriteLine("Options:");
-            options.WriteOptionDescriptions(Console.Out);
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine("ERROR: {0}", message);
+            Console.ResetColor();
         }
     }
 }
