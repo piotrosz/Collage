@@ -4,7 +4,7 @@ Simple application that creates collage of a given set of images.
 
 .NET 4.0 (C#)
 
-![Collage - windows forms app](http://if.pw.edu.pl/~ludwik/collage2.jpg)
+![Collage - windows forms app](http://if.pw.edu.pl/~ludwik/collage3.jpg)
 
 ### Console application ###
 
