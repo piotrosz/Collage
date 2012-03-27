@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
+using System.ComponentModel;
 
 namespace Collage.Engine
 {
@@ -12,14 +13,18 @@ namespace Collage.Engine
     {
         public CollageSettings Settings { get; set; }
 
+        //public delegate void CollageProgressChangedEventHandler(object sender, ProgressChangedEventArgs e);
+
+        //public event CollageProgressChangedEventHandler ProgressChanged;
+
         public CollageEngine(CollageSettings settings)
         {
             this.Settings = settings;
         }
 
-        public string CreateCollage()
+        public string Create()
         {
-            string collageFileName = Path.Combine(Settings.OutputDirectory, GetRandomName());
+            string collageFileName = Path.Combine(Settings.OutputDirectory, GetFileName());
             Random random = new Random();
 
             using (Bitmap bitmapCollage = new Bitmap(this.Settings.NumberOfColumns * this.Settings.TileWidth,
@@ -31,15 +36,18 @@ namespace Collage.Engine
                     graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                     graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-                    int imageCounter = 0;
                     for (int rowsCounter = 0; rowsCounter < this.Settings.NumberOfRows; rowsCounter++)
                     {
                         for (int colsCounter = 0; colsCounter < this.Settings.NumberOfColumns; colsCounter++)
                         {
-                            if (imageCounter >= Settings.InputImages.Count)
-                                imageCounter = 0;
+                            // Report progress
+                            //if (ProgressChanged != null)
+                            //{
+                            //    int percentage = CountProgressPercentage(colsCounter, rowsCounter);
+                            //    ProgressChanged(null, new ProgressChangedEventArgs(percentage, null));
+                            //}
 
-                            using (Bitmap tile = (Bitmap)Bitmap.FromFile(Settings.InputImages[imageCounter]))
+                            using (Bitmap tile = (Bitmap)Bitmap.FromFile(Settings.InputImages[random.Next(0, Settings.InputImages.Count)]))
                             {
                                 using (Bitmap tileScaled = tile.Scale(Settings.ScalePercent))
                                 {
@@ -49,14 +57,11 @@ namespace Collage.Engine
                                     if (tileScaled.HorizontalResolution != graphics.DpiX || tileScaled.VerticalResolution != graphics.DpiY)
                                         tileScaled.SetResolution(graphics.DpiX, graphics.DpiY);
 
-                                    int randomX = 0;
-                                    int randomY = 0;
+                                    int randomX = (tileScaled.Width > Settings.TileWidth) ?
+                                        random.Next(0, tileScaled.Width - Settings.TileWidth) : 0;
 
-                                    if (tileScaled.Width > Settings.TileWidth)
-                                        randomX = random.Next(0, tileScaled.Width - Settings.TileWidth);
-
-                                    if (tileScaled.Height > Settings.TileHeight)
-                                        randomY = random.Next(0, tileScaled.Height - Settings.TileHeight);
+                                    int randomY = (tileScaled.Height > Settings.TileHeight) ?
+                                        random.Next(0, tileScaled.Height - Settings.TileHeight) : 0;
 
                                     graphics.DrawImage(
                                         tileScaled,
@@ -64,8 +69,6 @@ namespace Collage.Engine
                                         rowsCounter * Settings.TileHeight,
                                         new Rectangle(randomX, randomY, Settings.TileWidth, Settings.TileHeight),
                                         GraphicsUnit.Pixel);
-
-                                    imageCounter++;
                                 }
                             }
                         }
@@ -84,9 +87,22 @@ namespace Collage.Engine
             return collageFileName;
         }
 
-        private string GetRandomName()
+        private string GetFileName()
         {
-            return Path.GetFileNameWithoutExtension(Path.GetRandomFileName()) + ".jpg";
+            return string.Format("collage_{0:yyyy-MM-dd_HHmm}.jpg", DateTime.Now);
+        }
+
+        private int CountProgressPercentage(int colsCounter, int rowsCounter)
+        {
+            return (int)
+             (
+              (
+               ((float)((rowsCounter + 1) * (colsCounter + 1)))
+               /
+               ((float)(this.Settings.NumberOfRows * this.Settings.NumberOfColumns))
+              )
+              * ((float)100)
+             );
         }
     }
 }

@@ -76,9 +76,17 @@ namespace CollageConsole
             };
 
             var collage = new CollageEngine(collageSettings);
-            string fileName = collage.CreateCollage();
+
+            collage.ProgressChanged += new CollageEngine.CollageProgressChangedEventHandler(collage_ProgressChanged);
+
+            string fileName = collage.Create();
 
             Console.WriteLine("Collage saved: {0}", Path.Combine(outputDirectory, fileName));
+        }
+
+        static void collage_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            Console.Write("\r{0}", e.ProgressPercentage);
         }
 
         static void ShowHelp(OptionSet options)
