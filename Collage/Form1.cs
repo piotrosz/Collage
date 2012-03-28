@@ -9,12 +9,11 @@ using Collage.Engine;
 
 namespace Collage
 {
-    //http://www.csharp-examples.net/create-asynchronous-method/
-
     public partial class Form1 : Form
     {
         private List<string> imagesList = new List<string>();
         private string outputDirectory = "";
+        private CollageEngine collage = new CollageEngine();
 
         public Form1()
         {
@@ -49,11 +48,9 @@ namespace Collage
             }
 
             ShowInformation("Work in progress...");
-
             DisableControls();
-            //btnCancel.Enabled = true;
 
-            var collageSettings = new CollageSettings
+            var settings = new CollageSettings
             {
                 InputImages = imagesList,
                 NumberOfColumns = Convert.ToInt32(nudColumns.Value),
@@ -65,7 +62,7 @@ namespace Collage
                 ScalePercent = Convert.ToInt32(nudScalePercent.Value),
             };
 
-            backgroundWorker1.RunWorkerAsync(collageSettings);
+            CreateCollage(settings);
         }
 
         // Shows the information for the user
@@ -77,10 +74,9 @@ namespace Collage
         // Cancels collage creation
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            backgroundWorker1.CancelAsync();
-
-            //btnCancel.Enabled = false;
+            collage.CancelAsync();
             EnableControls();
+            progressBar1.Value = 0;
         }
 
         private void DisableControls()
@@ -94,6 +90,8 @@ namespace Collage
             nudRows.Enabled = false;
             nudScalePercent.Enabled = false;
             cbRotateAndFlip.Enabled = false;
+
+            btnCancel.Enabled = true;
         }
 
         private void EnableControls()
@@ -107,61 +105,56 @@ namespace Collage
             nudRows.Enabled = true;
             nudScalePercent.Enabled = true;
             cbRotateAndFlip.Enabled = true;
+
+            btnCancel.Enabled = false;
         }
 
-        // Creates collage using background worker
-        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        private void CreateCollage(CollageSettings settings)
         {
-            var worker = sender as BackgroundWorker;
+            collage.Settings = settings;
 
-            e.Result = CreateCollage((CollageSettings)e.Argument, worker, e);
+            collage.CreateCompleted += new AsyncCompletedEventHandler(collage_CreateCompleted);
+            collage.CreateProgressChanged += new EventHandler<ProgressChangedEventArgs>(collage_CreateProgressChanged);
+
+            collage.CreateAsync();
         }
 
-        // Report colllage creation progress
-        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        void collage_CreateProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-        //    this.progressBar1.Value = e.ProgressPercentage;
+            progressBar1.Value = e.ProgressPercentage;
         }
 
-        // Executed when background worker finished its work
-        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        void collage_CreateCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            if (e.Error != null)
-            {
-                MessageBox.Show(e.Error.Message);
-            }
-            else if (e.Cancelled)
-            {
-                ShowInformation("Canceled");
-            }
+            if (e.Cancelled)
+                ShowInformation("Cancelled");
             else
-            {
-                // success
-                ShowInformation("Image saved: " + e.Result.ToString());
-            }
+                ShowInformation("Done");
 
+            if (e.UserState != null)
+                ShowInformation(e.UserState.ToString());
+
+            progressBar1.Value = 0;
             EnableControls();
-            //btnCancel.Enabled = false;
         }
 
-        private string CreateCollage(CollageSettings settings, BackgroundWorker worker, DoWorkEventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
         {
-            string result = "";
-
-            //if (worker.CancellationPending)
+            //var settings = new CollageSettings
             //{
-            //    e.Cancel = true;
-            //}
-            //else
-            //{
-                var collage = new CollageEngine(settings);
+            //    InputImages = new List<string>() { @"D:\test\Tulips.jpg", @"D:\test\Penguins.jpg" },
+            //    NumberOfColumns = 3,
+            //    NumberOfRows = 3,
+            //    TileHeight = 100,
+            //    TileWidth = 100,
+            //    RotateAndFlipRandomly = true,
+            //    OutputDirectory = @"D:\test",
+            //    ScalePercent = 50,
+            //};
 
-                //collage.ProgressChanged += new CollageEngine.CollageProgressChangedEventHandler(backgroundWorker1_ProgressChanged);
+            //CreateCollage(settings);
 
-                result = collage.Create();
-            //}
-
-            return result;
+            //collage.CancelAsync();
         }
     }
 }

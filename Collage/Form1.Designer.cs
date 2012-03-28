@@ -49,8 +49,9 @@ namespace Collage
             this.nudRows = new System.Windows.Forms.NumericUpDown();
             this.nudItemHeight = new System.Windows.Forms.NumericUpDown();
             this.nudItemWidth = new System.Windows.Forms.NumericUpDown();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.btnCancel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.nudScalePercent)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudColumns)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudRows)).BeginInit();
@@ -64,7 +65,7 @@ namespace Collage
             this.btnChooseFiles.AutoEllipsis = true;
             this.btnChooseFiles.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.btnChooseFiles.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.btnChooseFiles.Location = new System.Drawing.Point(3, 141);
+            this.btnChooseFiles.Location = new System.Drawing.Point(1, 141);
             this.btnChooseFiles.Name = "btnChooseFiles";
             this.btnChooseFiles.Size = new System.Drawing.Size(71, 25);
             this.btnChooseFiles.TabIndex = 0;
@@ -77,7 +78,7 @@ namespace Collage
             // 
             this.btnCollage.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.btnCollage.Enabled = false;
-            this.btnCollage.Location = new System.Drawing.Point(216, 142);
+            this.btnCollage.Location = new System.Drawing.Point(209, 142);
             this.btnCollage.Name = "btnCollage";
             this.btnCollage.Size = new System.Drawing.Size(98, 24);
             this.btnCollage.TabIndex = 1;
@@ -167,7 +168,7 @@ namespace Collage
             // 
             // btnSelectOutputDir
             // 
-            this.btnSelectOutputDir.Location = new System.Drawing.Point(80, 142);
+            this.btnSelectOutputDir.Location = new System.Drawing.Point(75, 142);
             this.btnSelectOutputDir.Name = "btnSelectOutputDir";
             this.btnSelectOutputDir.Size = new System.Drawing.Size(130, 24);
             this.btnSelectOutputDir.TabIndex = 15;
@@ -289,14 +290,6 @@ namespace Collage
             this.nudItemWidth.TabIndex = 3;
             this.nudItemWidth.Value = global::Collage.Properties.Settings.Default.DefaultItemWidth;
             // 
-            // backgroundWorker1
-            // 
-            this.backgroundWorker1.WorkerReportsProgress = true;
-            this.backgroundWorker1.WorkerSupportsCancellation = true;
-            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
-            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.label2);
@@ -320,12 +313,32 @@ namespace Collage
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Parameters";
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(3, 255);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(357, 19);
+            this.progressBar1.TabIndex = 26;
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Enabled = false;
+            this.btnCancel.Location = new System.Drawing.Point(311, 142);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(49, 23);
+            this.btnCancel.TabIndex = 27;
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.ClientSize = new System.Drawing.Size(365, 255);
+            this.ClientSize = new System.Drawing.Size(365, 277);
+            this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnSelectOutputDir);
             this.Controls.Add(this.listBox1);
@@ -367,8 +380,9 @@ namespace Collage
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown nudScalePercent;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Button btnCancel;
     }
 }
 

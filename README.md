@@ -12,4 +12,4 @@ Simple application that creates collage of a given set of images.
 
 ### Windows forms application ###
 
-![Collage on Windows](http://if.pw.edu.pl/~ludwik/collage_win.png)
+![Collage on Windows](http://if.pw.edu.pl/~ludwik/collage_win2.png)
