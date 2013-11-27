@@ -1,11 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C# Express 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collage", "Collage\Collage.csproj", "{2BDD663E-A83D-462C-A214-CD3A17C434F0}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collage.WinForms", "Collage.WinForms\Collage.WinForms.csproj", "{2BDD663E-A83D-462C-A214-CD3A17C434F0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collage.Engine", "Collage.Engine\Collage.Engine.csproj", "{BC82FC61-26E6-4F4A-AF93-73C38AA46394}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollageConsole", "CollageConsole\CollageConsole.csproj", "{B6225AAA-1E30-40A2-8E9A-9D8731D16990}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collage.Console", "Collage.Console\Collage.Console.csproj", "{B6225AAA-1E30-40A2-8E9A-9D8731D16990}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

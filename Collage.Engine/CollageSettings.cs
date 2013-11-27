@@ -1,74 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Collage.Engine
 {
     public class CollageSettings
     {
-        private int tileHeight = 2;
-        private int tileWidth = 2;
-        private int numberOfRows = 2;
-        private int numberOfColumns = 2;
-        private bool rotateAndFlipRandomly = false;
-        private bool convertToGrayscale = false;
-        List<string> inputImages = new List<string>();
-        private string outputDirectory = "";
-        private int scalePercent = 50;
-
-        public int ScalePercent 
+        public CollageSettings()
         {
-            get { return scalePercent; }
-            set { scalePercent = value; }
+            OutputDirectory = "";
+            InputImages = new List<string>();
+            NumberOfColumns = 2;
+            NumberOfRows = 2;
+            TileWidth = 2;
+            TileHeight = 2;
+            ScalePercent = 50;
         }
 
-        public int TileHeight
-        {
-            get { return tileHeight; }
-            set { tileHeight = value; }
-        }
+        public int ScalePercent { get; set; }
 
-        public int TileWidth
-        {
-            get { return tileWidth; }
-            set { tileWidth = value; }
-        }
+        public int TileHeight { get; set; }
 
-        public int NumberOfRows
-        {
-            get { return numberOfRows; }
-            set { numberOfRows = value; }
-        }
+        public int TileWidth { get; set; }
 
-        public int NumberOfColumns
-        {
-            get { return numberOfColumns; }
-            set { numberOfColumns = value; }
-        }
+        public int NumberOfRows { get; set; }
 
-        public bool RotateAndFlipRandomly
-        {
-            get { return rotateAndFlipRandomly; }
-            set { rotateAndFlipRandomly = value; }
-        }
+        public int NumberOfColumns { get; set; }
 
-        public bool ConvertToGrayscale
-        {
-            get { return convertToGrayscale; }
-            set { convertToGrayscale = value; }
-        }
+        public bool RotateAndFlipRandomly { get; set; }
 
-        public List<string> InputImages
-        {
-            get { return inputImages; }
-            set { inputImages = value; }
-        }
+        public bool ConvertToGrayscale { get; set; }
 
-        public string OutputDirectory
-        {
-            get { return outputDirectory; }
-            set { outputDirectory = value; }
-        }
+        public List<string> InputImages { get; set; }
+
+        public string OutputDirectory { get; set; }
     }
 }

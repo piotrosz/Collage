@@ -10,28 +10,15 @@ using System.Runtime.Remoting.Messaging;
 
 namespace Collage.Engine
 {
-    internal class CreateCollageAsyncContext
-    {
-        private readonly object sync = new object();
-        private bool isCancelling = false;
-
-        public bool IsCancelling
-        {
-            get { lock (sync) { return isCancelling; } }
-        }
-
-        public void Cancel()
-        {
-            lock (sync) { isCancelling = true; }
-        }
-    }
-
+    // TODO: This class is too big
     public class CollageEngine
     {
-        private bool isBusy = false;
-        public bool IsBusy { get { return isBusy; } }
+        private bool _isBusy;
+        public bool IsBusy { get { return _isBusy; } }
 
-        private readonly object sync = new object();
+        private readonly Random _random = new Random();
+
+        private readonly object _sync = new object();
 
         private delegate string CreateTaskWorkerDelegate(AsyncOperation async, CreateCollageAsyncContext asyncContext, out bool cancelled);
 
@@ -41,22 +28,26 @@ namespace Collage.Engine
         protected virtual void OnCreateCompleted(AsyncCompletedEventArgs e)
         {
             if (CreateCompleted != null)
+            {
                 CreateCompleted(this, e);
+            }
         }
 
         protected virtual void OnCreateProgressChanged(ProgressChangedEventArgs e)
         {
             if (CreateProgressChanged != null)
+            {
                 CreateProgressChanged(this, e);
+            }
         }
 
-        private CreateCollageAsyncContext createTaskContext = null;
+        private CreateCollageAsyncContext _createTaskContext;
 
         public CollageSettings Settings { get; set; }
 
         public CollageEngine(CollageSettings settings)
         {
-            this.Settings = settings;
+            Settings = settings;
         }
 
         public CollageEngine() { }
@@ -66,120 +57,94 @@ namespace Collage.Engine
             var worker = new CreateTaskWorkerDelegate(CreateCollage);
             var completedCallback = new AsyncCallback(CreateTaskCompletedCallback);
 
-            lock (sync)
+            lock (_sync)
             {
-                if (isBusy)
+                if (_isBusy)
                     throw new InvalidOperationException("The engine is currently busy.");
 
                 AsyncOperation async = AsyncOperationManager.CreateOperation(null);
-                CreateCollageAsyncContext context = new CreateCollageAsyncContext();
+                var context = new CreateCollageAsyncContext();
                 bool cancelled;
 
                 worker.BeginInvoke(async, context, out cancelled, completedCallback, async);
 
-                isBusy = true;
-                createTaskContext = context;
+                _isBusy = true;
+                _createTaskContext = context;
             }
         }
 
         public void CancelAsync()
         {
-            lock (sync)
+            lock (_sync)
             {
-                if (createTaskContext != null)
-                    createTaskContext.Cancel();
+                if (_createTaskContext != null)
+                {
+                    _createTaskContext.Cancel();
+                }
             }
         }
 
-        private void CreateTaskCompletedCallback(IAsyncResult ar)
+        private void CreateTaskCompletedCallback(IAsyncResult asyncResult)
         {
-            CreateTaskWorkerDelegate worker = (CreateTaskWorkerDelegate)((AsyncResult)ar).AsyncDelegate;
-            AsyncOperation async = (AsyncOperation)ar.AsyncState;
+            var worker = (CreateTaskWorkerDelegate)((AsyncResult)asyncResult).AsyncDelegate;
+            var async = (AsyncOperation)asyncResult.AsyncState;
 
-            bool cancelled = false;
-            string result = worker.EndInvoke(out cancelled, ar);
+            bool isCancelled;
+            string result = worker.EndInvoke(out isCancelled, asyncResult);
 
-            lock (sync)
+            lock (_sync)
             {
-                isBusy = false;
+                _isBusy = false;
             }
 
-            AsyncCompletedEventArgs completedArgs = new AsyncCompletedEventArgs(null, cancelled, result);
+            var completedArgs = new AsyncCompletedEventArgs(null, isCancelled, result);
 
             async.PostOperationCompleted(
-              delegate(object e) { OnCreateCompleted((AsyncCompletedEventArgs)e); },
+                e => OnCreateCompleted((AsyncCompletedEventArgs) e),
               completedArgs);
         }
 
         public string Create()
         {
-            bool cancelled = false;
+            bool cancelled;
             return CreateCollage(null, null, out cancelled);
         }
 
-        private string CreateCollage(AsyncOperation async, CreateCollageAsyncContext context, out bool cancelled)
+        private string CreateCollage(AsyncOperation async, CreateCollageAsyncContext context, out bool isCancelled)
         {
-            cancelled = false;
+            isCancelled = false;
 
             string collageFileName = Path.Combine(Settings.OutputDirectory, GetFileName());
-            Random random = new Random();
-
-            using (Bitmap bitmapCollage = new Bitmap(this.Settings.NumberOfColumns * this.Settings.TileWidth,
-                this.Settings.NumberOfRows * this.Settings.TileHeight))
+            
+            using (var bitmapCollage = new Bitmap(
+                Settings.NumberOfColumns * Settings.TileWidth,
+                Settings.NumberOfRows * Settings.TileHeight))
             {
-                using (Graphics graphics = Graphics.FromImage(bitmapCollage))
+                using (Graphics graphics = CreateGraphics(bitmapCollage))
                 {
-                    graphics.SmoothingMode = SmoothingMode.HighQuality;
-                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-                    for (int rowsCounter = 0; rowsCounter < this.Settings.NumberOfRows; rowsCounter++)
+                    for (int rowsCounter = 0; rowsCounter < Settings.NumberOfRows; rowsCounter++)
                     {
-                        for (int colsCounter = 0; colsCounter < this.Settings.NumberOfColumns; colsCounter++)
+                        for (int colsCounter = 0; colsCounter < Settings.NumberOfColumns; colsCounter++)
                         {
-                            // Report progress
+                            // Progress reporting
                             if (async != null)
                             {
                                 int progressPercentage = CountProgressPercentage(colsCounter, rowsCounter);
-                                ProgressChangedEventArgs args = new ProgressChangedEventArgs(progressPercentage, null);
-                                async.Post(delegate(object e)
-                                { OnCreateProgressChanged((ProgressChangedEventArgs)e); }, args);
+                                var args = new ProgressChangedEventArgs(progressPercentage, null);
+                                async.Post(e => OnCreateProgressChanged((ProgressChangedEventArgs) e), args);
                             }
 
-                            // Support for cancelling
+                            // Cancellation
                             if (context != null)
                             {
                                 if (context.IsCancelling)
                                 {
-                                    cancelled = true;
+                                    isCancelled = true;
                                     return "";
                                 }
                             }
 
-                            using (Bitmap tile = (Bitmap)Bitmap.FromFile(Settings.InputImages[random.Next(0, Settings.InputImages.Count)]))
-                            {
-                                using (Bitmap tileScaled = tile.Scale(Settings.ScalePercent))
-                                {
-                                    if (this.Settings.RotateAndFlipRandomly)
-                                        tileScaled.RotateFlipRandom(random);
-
-                                    if (tileScaled.HorizontalResolution != graphics.DpiX || tileScaled.VerticalResolution != graphics.DpiY)
-                                        tileScaled.SetResolution(graphics.DpiX, graphics.DpiY);
-
-                                    int randomX = (tileScaled.Width > Settings.TileWidth) ?
-                                        random.Next(0, tileScaled.Width - Settings.TileWidth) : 0;
-
-                                    int randomY = (tileScaled.Height > Settings.TileHeight) ?
-                                        random.Next(0, tileScaled.Height - Settings.TileHeight) : 0;
-
-                                    graphics.DrawImage(
-                                        tileScaled,
-                                        colsCounter * Settings.TileWidth,
-                                        rowsCounter * Settings.TileHeight,
-                                        new Rectangle(randomX, randomY, Settings.TileWidth, Settings.TileHeight),
-                                        GraphicsUnit.Pixel);
-                                }
-                            }
+                            DrawTile(graphics, colsCounter, rowsCounter);
                         }
                     }
                 }
@@ -187,13 +152,59 @@ namespace Collage.Engine
                 Bitmap bitmapCollageTransformed = bitmapCollage;
 
                 if (Settings.ConvertToGrayscale)
+                {
                     bitmapCollageTransformed = bitmapCollage.ToGrayscale();
+                }
 
                 bitmapCollageTransformed.Save(collageFileName, ImageFormat.Jpeg);
                 bitmapCollageTransformed.Dispose();
             }
 
             return collageFileName;
+        }
+
+        private Graphics CreateGraphics(Bitmap bitmap)
+        {
+            Graphics graphics = Graphics.FromImage(bitmap);
+
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            return graphics;
+        }
+
+        private void DrawTile(Graphics graphics, int colsCounter, int rowsCounter)
+        {
+            using (var tile = (Bitmap)Image.FromFile(Settings.InputImages[_random.Next(0, Settings.InputImages.Count)]))
+            {
+                using (Bitmap tileScaled = tile.Scale(Settings.ScalePercent))
+                {
+                    if (this.Settings.RotateAndFlipRandomly)
+                    {
+                        tileScaled.RotateFlipRandom(_random);
+                    }
+
+                    if (Math.Abs(tileScaled.HorizontalResolution - graphics.DpiX) > 0.01 ||
+                        Math.Abs(tileScaled.VerticalResolution - graphics.DpiY) > 0.01)
+                    {
+                        tileScaled.SetResolution(graphics.DpiX, graphics.DpiY);
+                    }
+
+                    int randomX = (tileScaled.Width > Settings.TileWidth) ?
+                        _random.Next(0, tileScaled.Width - Settings.TileWidth) : 0;
+
+                    int randomY = (tileScaled.Height > Settings.TileHeight) ?
+                        _random.Next(0, tileScaled.Height - Settings.TileHeight) : 0;
+
+                    graphics.DrawImage(
+                        tileScaled,
+                        colsCounter * Settings.TileWidth,
+                        rowsCounter * Settings.TileHeight,
+                        new Rectangle(randomX, randomY, Settings.TileWidth, Settings.TileHeight),
+                        GraphicsUnit.Pixel);
+                }
+            }
         }
 
         /// <summary>

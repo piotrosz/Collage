@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -18,7 +15,7 @@ namespace Collage.Engine
         // Remember to dispose Bitmap
         public static Bitmap RotateByAngle(this Image image, float angle)
         {
-            Bitmap bitmap = new Bitmap(image.Width, image.Height);
+            var bitmap = new Bitmap(image.Width, image.Height);
 
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
@@ -29,7 +26,6 @@ namespace Collage.Engine
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 graphics.DrawImage(image, new Point(0, 0));
             }
-
             return bitmap;
         }
 
@@ -38,7 +34,7 @@ namespace Collage.Engine
         {
             if (width < image.Width && height < image.Height)
             {
-                Bitmap bitmap = new Bitmap(width, height);
+                var bitmap = new Bitmap(width, height);
 
                 using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
@@ -52,8 +48,7 @@ namespace Collage.Engine
 
                 return bitmap;
             }
-            else
-                return (Bitmap)image;
+            return (Bitmap)image;
         }
 
         // Remember to dispose Bitmap
@@ -69,7 +64,7 @@ namespace Collage.Engine
             int destWidth = (int)(sourceWidth * nPercent);
             int destHeight = (int)(sourceHeight * nPercent);
 
-            Bitmap bitmap = new Bitmap(destWidth, destHeight, PixelFormat.Format24bppRgb);
+            var bitmap = new Bitmap(destWidth, destHeight, PixelFormat.Format24bppRgb);
             bitmap.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
             using (Graphics graphics = Graphics.FromImage(bitmap))
@@ -89,7 +84,7 @@ namespace Collage.Engine
         // Remember to dispose Bitmap
         public static Bitmap ToGrayscale(this Bitmap image)
         {
-            Bitmap bitmap = new Bitmap(image.Width, image.Height);
+            var bitmap = new Bitmap(image.Width, image.Height);
             for (int y = 0; y < bitmap.Height; y++)
             {
                 for (int x = 0; x < bitmap.Width; x++)

@@ -6,6 +6,8 @@ using Collage.Engine;
 
 namespace CollageConsole
 {
+    // TODO: Refactor (create separate classes, rename, clean-up)
+
     class Program
     {
         const string programName = "collage";
@@ -53,7 +55,7 @@ namespace CollageConsole
 
             if (imagesList.Count == 0)
             {
-                DirectoryInfo dirInfo = new DirectoryInfo(inputDirectory);
+                var dirInfo = new DirectoryInfo(inputDirectory);
                 Console.WriteLine("No images found in {0}.", dirInfo.FullName);
                 return;
             }
@@ -77,7 +79,7 @@ namespace CollageConsole
 
             var collage = new CollageEngine(collageSettings);
 
-            collage.ProgressChanged += new CollageEngine.CollageProgressChangedEventHandler(collage_ProgressChanged);
+            //collage.ProgressChanged += new CollageEngine.CollageProgressChangedEventHandler(collage_ProgressChanged);
 
             string fileName = collage.Create();
 
