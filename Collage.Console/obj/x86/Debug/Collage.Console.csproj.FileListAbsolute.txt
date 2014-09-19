@@ -1,8 +1,0 @@
-C:\Users\p.ludwiczuk\Documents\GitHub\Collage\Collage.Console\obj\x86\Debug\Collage.Console.csprojResolveAssemblyReference.cache
-C:\Users\p.ludwiczuk\Documents\GitHub\Collage\Collage.Console\bin\Debug\Collage.exe.config
-C:\Users\p.ludwiczuk\Documents\GitHub\Collage\Collage.Console\bin\Debug\Collage.exe
-C:\Users\p.ludwiczuk\Documents\GitHub\Collage\Collage.Console\bin\Debug\Collage.pdb
-C:\Users\p.ludwiczuk\Documents\GitHub\Collage\Collage.Console\bin\Debug\Collage.Engine.dll
-C:\Users\p.ludwiczuk\Documents\GitHub\Collage\Collage.Console\bin\Debug\Collage.Engine.pdb
-C:\Users\p.ludwiczuk\Documents\GitHub\Collage\Collage.Console\obj\x86\Debug\Collage.exe
-C:\Users\p.ludwiczuk\Documents\GitHub\Collage\Collage.Console\obj\x86\Debug\Collage.pdb

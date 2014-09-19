@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using Collage.Engine;
 
@@ -11,9 +8,10 @@ namespace Collage
 {
     public partial class Form1 : Form
     {
-        private List<string> imagesList = new List<string>();
+        private readonly List<string> imagesList = new List<string>();
         private string outputDirectory = "";
-        private CollageEngine collage = new CollageEngine();
+
+        private CollageEngine collage;
 
         public Form1()
         {
@@ -28,7 +26,9 @@ namespace Collage
             ShowInformation(string.Format("Number of images selected {0}.", imagesList.Count));
 
             if (imagesList.Count > 0)
+            {
                 btnCollage.Enabled = true;
+            }
         }
 
         // Shows dialog with output directory selection
@@ -65,13 +65,11 @@ namespace Collage
             CreateCollage(settings);
         }
 
-        // Shows the information for the user
         private void ShowInformation(string message)
         {
             listBox1.Items.Add(message);
         }
 
-        // Cancels collage creation
         private void btnCancel_Click(object sender, EventArgs e)
         {
             collage.CancelAsync();
@@ -111,10 +109,10 @@ namespace Collage
 
         private void CreateCollage(CollageSettings settings)
         {
-            collage.Settings = settings;
-
-            collage.CreateCompleted += new AsyncCompletedEventHandler(collage_CreateCompleted);
-            collage.CreateProgressChanged += new EventHandler<ProgressChangedEventArgs>(collage_CreateProgressChanged);
+            this.collage = new CollageEngine(settings);
+            
+            collage.CreateCompleted += this.collage_CreateCompleted;
+            collage.CreateProgressChanged += this.collage_CreateProgressChanged;
 
             collage.CreateAsync();
         }
@@ -126,35 +124,15 @@ namespace Collage
 
         void collage_CreateCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            if (e.Cancelled)
-                ShowInformation("Cancelled");
-            else
-                ShowInformation("Done");
+            this.ShowInformation(e.Cancelled ? "Cancelled" : "Done");
 
             if (e.UserState != null)
+            {
                 ShowInformation(e.UserState.ToString());
-
+            }
+                
             progressBar1.Value = 0;
             EnableControls();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            //var settings = new CollageSettings
-            //{
-            //    InputImages = new List<string>() { @"D:\test\Tulips.jpg", @"D:\test\Penguins.jpg" },
-            //    NumberOfColumns = 3,
-            //    NumberOfRows = 3,
-            //    TileHeight = 100,
-            //    TileWidth = 100,
-            //    RotateAndFlipRandomly = true,
-            //    OutputDirectory = @"D:\test",
-            //    ScalePercent = 50,
-            //};
-
-            //CreateCollage(settings);
-
-            //collage.CancelAsync();
         }
     }
 }

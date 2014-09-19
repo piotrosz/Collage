@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
@@ -13,6 +11,16 @@ namespace Collage.Engine
     // TODO: This class is too big
     public class CollageEngine
     {
+        private readonly ProgressCounter progressCounter;
+        private readonly FileNameCreator fileNameCreator;
+
+        public CollageEngine(CollageSettings settings)
+        {
+            this.Settings = settings;
+            this.progressCounter = new ProgressCounter(settings.NumberOfRows, settings.NumberOfColumns);
+            this.fileNameCreator = new FileNameCreator();
+        }
+
         private bool _isBusy;
         public bool IsBusy { get { return _isBusy; } }
 
@@ -44,13 +52,6 @@ namespace Collage.Engine
         private CreateCollageAsyncContext _createTaskContext;
 
         public CollageSettings Settings { get; set; }
-
-        public CollageEngine(CollageSettings settings)
-        {
-            Settings = settings;
-        }
-
-        public CollageEngine() { }
 
         public void CreateAsync()
         {
@@ -114,7 +115,7 @@ namespace Collage.Engine
         {
             isCancelled = false;
 
-            string collageFileName = Path.Combine(Settings.OutputDirectory, GetFileName());
+            string collageFileName = Path.Combine(Settings.OutputDirectory, this.fileNameCreator.CreateFileName());
             
             using (var bitmapCollage = new Bitmap(
                 Settings.NumberOfColumns * Settings.TileWidth,
@@ -129,7 +130,7 @@ namespace Collage.Engine
                             // Progress reporting
                             if (async != null)
                             {
-                                int progressPercentage = CountProgressPercentage(colsCounter, rowsCounter);
+                                int progressPercentage = this.progressCounter.GetProgressPercentage(colsCounter, rowsCounter);
                                 var args = new ProgressChangedEventArgs(progressPercentage, null);
                                 async.Post(e => OnCreateProgressChanged((ProgressChangedEventArgs) e), args);
                             }
@@ -165,7 +166,7 @@ namespace Collage.Engine
 
         private Graphics CreateGraphics(Bitmap bitmap)
         {
-            Graphics graphics = Graphics.FromImage(bitmap);
+            var graphics = Graphics.FromImage(bitmap);
 
             graphics.SmoothingMode = SmoothingMode.HighQuality;
             graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -205,34 +206,6 @@ namespace Collage.Engine
                         GraphicsUnit.Pixel);
                 }
             }
-        }
-
-        /// <summary>
-        /// Gets the output file name.
-        /// </summary>
-        /// <returns></returns>
-        private string GetFileName()
-        {
-            return string.Format("collage_{0:yyyy-MM-dd_HHmm}.jpg", DateTime.Now);
-        }
-
-        /// <summary>
-        /// Gets the progress percentage while creating collage.
-        /// </summary>
-        /// <param name="colsCounter">Current column index.</param>
-        /// <param name="rowsCounter">Current row index</param>
-        /// <returns></returns>
-        private int CountProgressPercentage(int colsCounter, int rowsCounter)
-        {
-            return (int)
-             (
-              (
-               ((float)(rowsCounter * this.Settings.NumberOfRows + (colsCounter + 1)))
-               /
-               ((float)(this.Settings.NumberOfRows * this.Settings.NumberOfColumns))
-              )
-              * ((float)100)
-             );
-        }
+        }  
     }
 }

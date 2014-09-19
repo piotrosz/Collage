@@ -47,7 +47,9 @@
     <Compile Include="CollageEngine.cs" />
     <Compile Include="CollageSettings.cs" />
     <Compile Include="CreateCollageAsyncContext.cs" />
+    <Compile Include="FileNameCreator.cs" />
     <Compile Include="ImageExtensions.cs" />
+    <Compile Include="ProgressCounter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

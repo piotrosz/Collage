@@ -12,12 +12,12 @@ namespace CollageConsole
     {
         const string programName = "collage";
 
-        static bool showHelp = false;
+        static bool showHelp;
         static string inputDirectory = "", outputDirectory = "";
         static int tileHeight = 5, tileWidth = 5;
         static int numberOfRows = 5, numberOfColums = 5;
-        static bool rotateAndFlipRandomly = false;
-        static bool convertToGrayscale = false;
+        static bool rotateAndFlipRandomly;
+        static bool convertToGrayscale;
         static int scalePercent = 50;
 
         static bool tileHeightParsed = true, tileWidthParsed = true,
@@ -28,10 +28,9 @@ namespace CollageConsole
         {
             var options = CreateOptions();
 
-            List<string> extra;
             try
             {
-                extra = options.Parse(args);
+                options.Parse(args);
             }
             catch (OptionException e)
             {
