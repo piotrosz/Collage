@@ -2,35 +2,28 @@
 
 namespace Collage.Engine
 {
+    using System.IO;
+
     public class CollageSettings
     {
-        public CollageSettings()
+        public CollageSettings( 
+            CollageDimensionSettings collageDimensionSettings, 
+            AdditionalCollageSettings additionalCollageSettings, 
+            List<FileInfo> inputFiles, 
+            DirectoryInfo outputDirectory)
         {
-            OutputDirectory = "";
-            InputImages = new List<string>();
-            NumberOfColumns = 2;
-            NumberOfRows = 2;
-            TileWidth = 2;
-            TileHeight = 2;
-            ScalePercent = 50;
+            this.DimensionSettings = collageDimensionSettings;
+            this.AdditionalSettings = additionalCollageSettings;
+            this.InputFiles = inputFiles;
+            this.OutputDirectory = outputDirectory;
         }
 
-        public int ScalePercent { get; set; }
+        public AdditionalCollageSettings AdditionalSettings { get; set; }
 
-        public int TileHeight { get; set; }
+        public CollageDimensionSettings DimensionSettings { get; set; }
 
-        public int TileWidth { get; set; }
+        public List<FileInfo> InputFiles { get; set; }
 
-        public int NumberOfRows { get; set; }
-
-        public int NumberOfColumns { get; set; }
-
-        public bool RotateAndFlipRandomly { get; set; }
-
-        public bool ConvertToGrayscale { get; set; }
-
-        public List<string> InputImages { get; set; }
-
-        public string OutputDirectory { get; set; }
+        public DirectoryInfo OutputDirectory { get; set; }
     }
 }

@@ -6,6 +6,8 @@ using Collage.Engine;
 
 namespace CollageConsole
 {
+    using System.Linq;
+
     // TODO: Refactor (create separate classes, rename, clean-up)
 
     class Program
@@ -49,8 +51,8 @@ namespace CollageConsole
             if (!ValidateOptions())
                 return;
 
-            var imagesList = new List<string>();
-            imagesList.AddRange(Directory.GetFiles(inputDirectory, "*.jpg"));
+            var imagesList = new List<FileInfo>();
+            imagesList.AddRange(Directory.GetFiles(inputDirectory, "*.jpg").Select(name => new FileInfo(name)));
 
             if (imagesList.Count == 0)
             {
@@ -58,36 +60,32 @@ namespace CollageConsole
                 Console.WriteLine("No images found in {0}.", dirInfo.FullName);
                 return;
             }
-            else
-            {
-                Console.WriteLine("Number of images found: {0}", imagesList.Count);
-            }
 
-            var collageSettings = new CollageSettings
-            {
-                InputImages = imagesList,
-                NumberOfColumns = numberOfColums,
-                NumberOfRows = numberOfRows,
-                TileHeight = tileHeight,
-                TileWidth = tileWidth,
-                RotateAndFlipRandomly = rotateAndFlipRandomly,
-                ConvertToGrayscale = convertToGrayscale,
-                OutputDirectory = outputDirectory,
-                ScalePercent = scalePercent
-            };
+            Console.WriteLine("Number of images found: {0}", imagesList.Count);
+
+            var collageSettings =
+                new CollageSettings(
+                    new CollageDimensionSettings
+                        {
+                            NumberOfColumns = numberOfColums,
+                            NumberOfRows = numberOfRows,
+                            TileHeight = tileHeight,
+                            TileWidth = tileWidth,
+                            TileScalePercent = new Percentage(scalePercent)
+                        },
+                    new AdditionalCollageSettings
+                        {
+                            ConvertToGrayscale = convertToGrayscale,
+                            RotateAndFlipRandomly = rotateAndFlipRandomly
+                        },
+                    imagesList,
+                    new DirectoryInfo(outputDirectory));
 
             var collage = new CollageEngine(collageSettings);
 
-            //collage.ProgressChanged += new CollageEngine.CollageProgressChangedEventHandler(collage_ProgressChanged);
+            collage.Create();
 
-            string fileName = collage.Create();
-
-            Console.WriteLine("Collage saved: {0}", Path.Combine(outputDirectory, fileName));
-        }
-
-        static void collage_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
-        {
-            Console.Write("\r{0}", e.ProgressPercentage);
+            Console.WriteLine("Collage saved: {0}", Path.Combine(outputDirectory, collage.FileName));
         }
 
         static void ShowHelp(OptionSet options)

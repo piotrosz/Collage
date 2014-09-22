@@ -6,9 +6,12 @@ using Collage.Engine;
 
 namespace Collage
 {
+    using System.IO;
+    using System.Linq;
+
     public partial class Form1 : Form
     {
-        private readonly List<string> imagesList = new List<string>();
+        private readonly List<FileInfo> imagesList = new List<FileInfo>();
         private string outputDirectory = "";
 
         private CollageEngine collage;
@@ -22,13 +25,10 @@ namespace Collage
         private void bntChooseDir_Click(object sender, EventArgs e)
         {
             openFileDialog1.ShowDialog();
-            imagesList.AddRange(openFileDialog1.FileNames);
+            imagesList.AddRange(openFileDialog1.FileNames.Select(name => new FileInfo(name)));
             ShowInformation(string.Format("Number of images selected {0}.", imagesList.Count));
-
-            if (imagesList.Count > 0)
-            {
-                btnCollage.Enabled = true;
-            }
+            
+            btnCollage.Enabled = imagesList.Count > 0;
         }
 
         // Shows dialog with output directory selection
@@ -50,17 +50,25 @@ namespace Collage
             ShowInformation("Work in progress...");
             DisableControls();
 
-            var settings = new CollageSettings
-            {
-                InputImages = imagesList,
-                NumberOfColumns = Convert.ToInt32(nudColumns.Value),
-                NumberOfRows = Convert.ToInt32(nudRows.Value),
-                TileHeight = Convert.ToInt32(nudItemHeight.Value),
-                TileWidth = Convert.ToInt32(nudItemWidth.Value),
-                RotateAndFlipRandomly = cbRotateAndFlip.Checked,
-                OutputDirectory = folderBrowserDialog1.SelectedPath,
-                ScalePercent = Convert.ToInt32(nudScalePercent.Value),
-            };
+            var settings =
+                new CollageSettings(
+                    new CollageDimensionSettings
+                        {
+                            NumberOfColumns = Convert.ToInt32(nudColumns.Value),
+                            NumberOfRows = Convert.ToInt32(nudRows.Value),
+                            TileHeight = Convert.ToInt32(nudItemHeight.Value),
+                            TileWidth = Convert.ToInt32(nudItemWidth.Value),
+                            TileScalePercent =new Percentage(Convert.ToInt32(nudScalePercent.Value))
+                        },
+                        new AdditionalCollageSettings
+                            {
+                                ConvertToGrayscale = false,
+                                RotateAndFlipRandomly = cbRotateAndFlip.Checked
+                                
+                            }, 
+                        imagesList,
+                        new DirectoryInfo(folderBrowserDialog1.SelectedPath)
+                    );
 
             CreateCollage(settings);
         }

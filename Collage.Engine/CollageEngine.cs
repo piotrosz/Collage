@@ -1,13 +1,12 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
-using System.Drawing.Imaging;
-using System.Drawing.Drawing2D;
-using System.ComponentModel;
-using System.Runtime.Remoting.Messaging;
-
-namespace Collage.Engine
+﻿namespace Collage.Engine
 {
+    using System;
+    using System.Drawing;
+    using System.Drawing.Imaging;
+    using System.Drawing.Drawing2D;
+    using System.ComponentModel;
+    using System.Runtime.Remoting.Messaging;
+
     // TODO: This class is too big
     public class CollageEngine
     {
@@ -17,9 +16,11 @@ namespace Collage.Engine
         public CollageEngine(CollageSettings settings)
         {
             this.Settings = settings;
-            this.progressCounter = new ProgressCounter(settings.NumberOfRows, settings.NumberOfColumns);
-            this.fileNameCreator = new FileNameCreator();
+            this.progressCounter = new ProgressCounter(settings.DimensionSettings.NumberOfRows, settings.DimensionSettings.NumberOfColumns);
+            this.fileNameCreator = new FileNameCreator(settings.OutputDirectory);
         }
+
+        public string FileName { get; private set; }
 
         private bool _isBusy;
         public bool IsBusy { get { return _isBusy; } }
@@ -28,7 +29,7 @@ namespace Collage.Engine
 
         private readonly object _sync = new object();
 
-        private delegate string CreateTaskWorkerDelegate(AsyncOperation async, CreateCollageAsyncContext asyncContext, out bool cancelled);
+        private delegate void CreateTaskWorkerDelegate(AsyncOperation async, CreateCollageAsyncContext asyncContext, out bool cancelled);
 
         public event EventHandler<ProgressChangedEventArgs> CreateProgressChanged;
         public event AsyncCompletedEventHandler CreateCompleted;
@@ -61,8 +62,10 @@ namespace Collage.Engine
             lock (_sync)
             {
                 if (_isBusy)
+                {
                     throw new InvalidOperationException("The engine is currently busy.");
-
+                }
+                    
                 AsyncOperation async = AsyncOperationManager.CreateOperation(null);
                 var context = new CreateCollageAsyncContext();
                 bool cancelled;
@@ -91,41 +94,41 @@ namespace Collage.Engine
             var async = (AsyncOperation)asyncResult.AsyncState;
 
             bool isCancelled;
-            string result = worker.EndInvoke(out isCancelled, asyncResult);
+            worker.EndInvoke(out isCancelled, asyncResult);
 
             lock (_sync)
             {
                 _isBusy = false;
             }
 
-            var completedArgs = new AsyncCompletedEventArgs(null, isCancelled, result);
+            var completedArgs = new AsyncCompletedEventArgs(null, isCancelled, null);
 
             async.PostOperationCompleted(
                 e => OnCreateCompleted((AsyncCompletedEventArgs) e),
               completedArgs);
         }
 
-        public string Create()
+        public void Create()
         {
             bool cancelled;
-            return CreateCollage(null, null, out cancelled);
+            CreateCollage(null, null, out cancelled);
         }
 
-        private string CreateCollage(AsyncOperation async, CreateCollageAsyncContext context, out bool isCancelled)
+        private void CreateCollage(AsyncOperation async, CreateCollageAsyncContext context, out bool isCancelled)
         {
             isCancelled = false;
 
-            string collageFileName = Path.Combine(Settings.OutputDirectory, this.fileNameCreator.CreateFileName());
+            this.FileName = this.fileNameCreator.CreateFileName();
             
             using (var bitmapCollage = new Bitmap(
-                Settings.NumberOfColumns * Settings.TileWidth,
-                Settings.NumberOfRows * Settings.TileHeight))
+                this.Settings.DimensionSettings.TotalWidth,
+                this.Settings.DimensionSettings.TotalHeight))
             {
                 using (Graphics graphics = CreateGraphics(bitmapCollage))
                 {
-                    for (int rowsCounter = 0; rowsCounter < Settings.NumberOfRows; rowsCounter++)
+                    for (int rowsCounter = 0; rowsCounter < Settings.DimensionSettings.NumberOfRows; rowsCounter++)
                     {
-                        for (int colsCounter = 0; colsCounter < Settings.NumberOfColumns; colsCounter++)
+                        for (int colsCounter = 0; colsCounter < Settings.DimensionSettings.NumberOfColumns; colsCounter++)
                         {
                             // Progress reporting
                             if (async != null)
@@ -141,7 +144,6 @@ namespace Collage.Engine
                                 if (context.IsCancelling)
                                 {
                                     isCancelled = true;
-                                    return "";
                                 }
                             }
 
@@ -152,16 +154,14 @@ namespace Collage.Engine
 
                 Bitmap bitmapCollageTransformed = bitmapCollage;
 
-                if (Settings.ConvertToGrayscale)
+                if (Settings.AdditionalSettings.ConvertToGrayscale)
                 {
                     bitmapCollageTransformed = bitmapCollage.ToGrayscale();
                 }
 
-                bitmapCollageTransformed.Save(collageFileName, ImageFormat.Jpeg);
+                bitmapCollageTransformed.Save(this.FileName, ImageFormat.Jpeg);
                 bitmapCollageTransformed.Dispose();
             }
-
-            return collageFileName;
         }
 
         private Graphics CreateGraphics(Bitmap bitmap)
@@ -177,11 +177,11 @@ namespace Collage.Engine
 
         private void DrawTile(Graphics graphics, int colsCounter, int rowsCounter)
         {
-            using (var tile = (Bitmap)Image.FromFile(Settings.InputImages[_random.Next(0, Settings.InputImages.Count)]))
+            using (var tile = (Bitmap)Image.FromFile(Settings.InputFiles[_random.Next(0, Settings.InputFiles.Count)].FullName))
             {
-                using (Bitmap tileScaled = tile.Scale(Settings.ScalePercent))
+                using (Bitmap tileScaled = tile.Scale(Settings.DimensionSettings.TileScalePercent))
                 {
-                    if (this.Settings.RotateAndFlipRandomly)
+                    if (this.Settings.AdditionalSettings.RotateAndFlipRandomly)
                     {
                         tileScaled.RotateFlipRandom(_random);
                     }
@@ -192,17 +192,17 @@ namespace Collage.Engine
                         tileScaled.SetResolution(graphics.DpiX, graphics.DpiY);
                     }
 
-                    int randomX = (tileScaled.Width > Settings.TileWidth) ?
-                        _random.Next(0, tileScaled.Width - Settings.TileWidth) : 0;
+                    int randomX = (tileScaled.Width > Settings.DimensionSettings.TileWidth) ?
+                        _random.Next(0, tileScaled.Width - Settings.DimensionSettings.TileWidth) : 0;
 
-                    int randomY = (tileScaled.Height > Settings.TileHeight) ?
-                        _random.Next(0, tileScaled.Height - Settings.TileHeight) : 0;
+                    int randomY = (tileScaled.Height > Settings.DimensionSettings.TileHeight) ?
+                        _random.Next(0, tileScaled.Height - Settings.DimensionSettings.TileHeight) : 0;
 
                     graphics.DrawImage(
                         tileScaled,
-                        colsCounter * Settings.TileWidth,
-                        rowsCounter * Settings.TileHeight,
-                        new Rectangle(randomX, randomY, Settings.TileWidth, Settings.TileHeight),
+                        colsCounter * Settings.DimensionSettings.TileWidth,
+                        rowsCounter * Settings.DimensionSettings.TileHeight,
+                        new Rectangle(randomX, randomY, Settings.DimensionSettings.TileWidth, Settings.DimensionSettings.TileHeight),
                         GraphicsUnit.Pixel);
                 }
             }

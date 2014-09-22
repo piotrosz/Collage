@@ -1,10 +1,10 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-
-namespace Collage.Engine
+﻿namespace Collage.Engine
 {
+    using System;
+    using System.Drawing;
+    using System.Drawing.Drawing2D;
+    using System.Drawing.Imaging;
+
     public static class ImageExtensions
     {
         public static void RotateFlipRandom(this Image image, Random random)
@@ -52,17 +52,24 @@ namespace Collage.Engine
         }
 
         // Remember to dispose Bitmap
-        public static Bitmap Scale(this Image image, int percent)
+        public static Bitmap Scale(this Image image, Percentage percentage)
         {
-            float nPercent = ((float)percent / 100);
+            if (percentage.Value == 100)
+            {
+                return (Bitmap)image;
+            }
 
-            int sourceWidth = image.Width;
-            int sourceHeight = image.Height;
-            int sourceX = 0, sourceY = 0;
+            var nPercent = percentage.ValueAsFloat;
 
-            int destX = 0, destY = 0;
-            int destWidth = (int)(sourceWidth * nPercent);
-            int destHeight = (int)(sourceHeight * nPercent);
+            var sourceWidth = image.Width;
+            var sourceHeight = image.Height;
+            const int sourceX = 0;
+            const int sourceY = 0;
+
+            const int destX = 0;
+            const int destY = 0;
+            var destWidth = (int)(sourceWidth * nPercent);
+            var destHeight = (int)(sourceHeight * nPercent);
 
             var bitmap = new Bitmap(destWidth, destHeight, PixelFormat.Format24bppRgb);
             bitmap.SetResolution(image.HorizontalResolution, image.VerticalResolution);

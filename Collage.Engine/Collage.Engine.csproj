@@ -44,11 +44,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdditionalCollageSettings.cs" />
+    <Compile Include="CollageDimensionSettings.cs" />
     <Compile Include="CollageEngine.cs" />
     <Compile Include="CollageSettings.cs" />
     <Compile Include="CreateCollageAsyncContext.cs" />
     <Compile Include="FileNameCreator.cs" />
     <Compile Include="ImageExtensions.cs" />
+    <Compile Include="Percentage.cs" />
     <Compile Include="ProgressCounter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
