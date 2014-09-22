@@ -85,7 +85,7 @@ namespace CollageConsole
 
             collage.Create();
 
-            Console.WriteLine("Collage saved: {0}", Path.Combine(outputDirectory, collage.FileName));
+            Console.WriteLine("Collage saved");
         }
 
         static void ShowHelp(OptionSet options)

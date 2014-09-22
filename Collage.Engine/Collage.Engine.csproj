@@ -47,6 +47,7 @@
     <Compile Include="AdditionalCollageSettings.cs" />
     <Compile Include="CollageDimensionSettings.cs" />
     <Compile Include="CollageEngine.cs" />
+    <Compile Include="CollageSaver.cs" />
     <Compile Include="CollageSettings.cs" />
     <Compile Include="CreateCollageAsyncContext.cs" />
     <Compile Include="FileNameCreator.cs" />

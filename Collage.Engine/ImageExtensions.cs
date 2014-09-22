@@ -103,5 +103,16 @@
             }
             return bitmap;
         }
+
+        public static Graphics CreateGraphics(this Bitmap bitmap)
+        {
+            var graphics = Graphics.FromImage(bitmap);
+
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            return graphics;
+        }
     }
 }

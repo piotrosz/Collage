@@ -2,25 +2,19 @@
 {
     using System;
     using System.Drawing;
-    using System.Drawing.Imaging;
     using System.Drawing.Drawing2D;
     using System.ComponentModel;
     using System.Runtime.Remoting.Messaging;
 
-    // TODO: This class is too big
     public class CollageEngine
     {
         private readonly ProgressCounter progressCounter;
-        private readonly FileNameCreator fileNameCreator;
 
         public CollageEngine(CollageSettings settings)
         {
             this.Settings = settings;
             this.progressCounter = new ProgressCounter(settings.DimensionSettings.NumberOfRows, settings.DimensionSettings.NumberOfColumns);
-            this.fileNameCreator = new FileNameCreator(settings.OutputDirectory);
         }
-
-        public string FileName { get; private set; }
 
         private bool _isBusy;
         public bool IsBusy { get { return _isBusy; } }
@@ -118,13 +112,11 @@
         {
             isCancelled = false;
 
-            this.FileName = this.fileNameCreator.CreateFileName();
-            
             using (var bitmapCollage = new Bitmap(
                 this.Settings.DimensionSettings.TotalWidth,
                 this.Settings.DimensionSettings.TotalHeight))
             {
-                using (Graphics graphics = CreateGraphics(bitmapCollage))
+                using (Graphics graphics = bitmapCollage.CreateGraphics())
                 {
                     for (int rowsCounter = 0; rowsCounter < Settings.DimensionSettings.NumberOfRows; rowsCounter++)
                     {
@@ -159,20 +151,8 @@
                     bitmapCollageTransformed = bitmapCollage.ToGrayscale();
                 }
 
-                bitmapCollageTransformed.Save(this.FileName, ImageFormat.Jpeg);
-                bitmapCollageTransformed.Dispose();
+                new CollageSaver(this.Settings.OutputDirectory).Save(bitmapCollageTransformed);
             }
-        }
-
-        private Graphics CreateGraphics(Bitmap bitmap)
-        {
-            var graphics = Graphics.FromImage(bitmap);
-
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
-            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-            return graphics;
         }
 
         private void DrawTile(Graphics graphics, int colsCounter, int rowsCounter)
