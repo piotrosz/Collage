@@ -2,7 +2,6 @@
 {
     using System;
     using System.Drawing;
-    using System.Drawing.Drawing2D;
     using System.ComponentModel;
     using System.Runtime.Remoting.Messaging;
 
@@ -122,22 +121,8 @@
                     {
                         for (int colsCounter = 0; colsCounter < Settings.DimensionSettings.NumberOfColumns; colsCounter++)
                         {
-                            // Progress reporting
-                            if (async != null)
-                            {
-                                int progressPercentage = this.progressCounter.GetProgressPercentage(colsCounter, rowsCounter);
-                                var args = new ProgressChangedEventArgs(progressPercentage, null);
-                                async.Post(e => OnCreateProgressChanged((ProgressChangedEventArgs) e), args);
-                            }
-
-                            // Cancellation
-                            if (context != null)
-                            {
-                                if (context.IsCancelling)
-                                {
-                                    isCancelled = true;
-                                }
-                            }
+                            this.ReportProgress(async, colsCounter, rowsCounter);
+                            HandleCancellation(context, ref isCancelled);
 
                             DrawTile(graphics, colsCounter, rowsCounter);
                         }
@@ -152,6 +137,27 @@
                 }
 
                 new CollageSaver(this.Settings.OutputDirectory).Save(bitmapCollageTransformed);
+            }
+        }
+
+        private static void HandleCancellation(CreateCollageAsyncContext context, ref bool isCancelled)
+        {
+            if (context != null)
+            {
+                if (context.IsCancelling)
+                {
+                    isCancelled = true;
+                }
+            }
+        }
+
+        private void ReportProgress(AsyncOperation async, int colsCounter, int rowsCounter)
+        {
+            if (async != null)
+            {
+                int progressPercentage = this.progressCounter.GetProgressPercentage(colsCounter, rowsCounter);
+                var args = new ProgressChangedEventArgs(progressPercentage, null);
+                async.Post(e => this.OnCreateProgressChanged((ProgressChangedEventArgs)e), args);
             }
         }
 
