@@ -29,7 +29,7 @@
             this.collageSaver = new CollageSaver(settings.OutputDirectory);
         }
 
-        public bool IsBusy { get; private set; }
+        private bool isBusy;
 
         private readonly object sync = new object();
 
@@ -63,7 +63,7 @@
 
             lock (this.sync)
             {
-                if (this.IsBusy)
+                if (this.isBusy)
                 {
                     throw new InvalidOperationException("The engine is currently busy.");
                 }
@@ -74,7 +74,7 @@
 
                 worker.BeginInvoke(async, context, out cancelled, completedCallback, async);
 
-                this.IsBusy = true;
+                this.isBusy = true;
                 this.createTaskContext = context;
             }
         }
@@ -100,7 +100,7 @@
 
             lock (this.sync)
             {
-                this.IsBusy = false;
+                this.isBusy = false;
             }
 
             var completedArgs = new AsyncCompletedEventArgs(null, isCancelled, null);

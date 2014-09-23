@@ -18,12 +18,12 @@ namespace Collage.Engine
             this.OutputDirectory = outputDirectory;
         }
 
-        public AdditionalCollageSettings Additional { get; set; }
+        public AdditionalCollageSettings Additional { get; private set; }
 
-        public CollageDimensionSettings Dimensions { get; set; }
+        public CollageDimensionSettings Dimensions { get; private set; }
 
-        public List<FileInfo> InputFiles { get; set; }
+        public List<FileInfo> InputFiles { get; private set; }
 
-        public DirectoryInfo OutputDirectory { get; set; }
+        public DirectoryInfo OutputDirectory { get; private set; }
     }
 }
