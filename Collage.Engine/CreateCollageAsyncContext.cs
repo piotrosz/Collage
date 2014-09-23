@@ -2,17 +2,17 @@
 {
     internal class CreateCollageAsyncContext
     {
-        private readonly object _sync = new object();
-        private bool _isCancelling;
+        private readonly object sync = new object();
+        private bool isCancelling;
 
         public bool IsCancelling
         {
-            get { lock (_sync) { return _isCancelling; } }
+            get { lock (this.sync) { return this.isCancelling; } }
         }
 
         public void Cancel()
         {
-            lock (_sync) { _isCancelling = true; }
+            lock (this.sync) { this.isCancelling = true; }
         }
     }
 }
