@@ -11,6 +11,7 @@
         private readonly IRandomGenerator randomGenerator;
         private readonly CollageSettings settings;
         private readonly TileTransformer tileTransformer;
+        private readonly IFilesEnumerator filesEnumerator;
 
         public CollageGenerator(CollageSettings settings)
         {
@@ -23,6 +24,7 @@
             this.progressCounter = new ProgressCounter(settings.DimensionSettings.NumberOfRows, settings.DimensionSettings.NumberOfColumns);
             this.randomGenerator = new RandomGenerator();
             this.tileTransformer = new TileTransformer();
+            this.filesEnumerator = new DateFilesEnumerator(settings.InputFiles);
         }
 
         public bool IsBusy { get; private set; }
@@ -140,7 +142,7 @@
 
         private void DrawTile(Graphics graphics, int colsCounter, int rowsCounter)
         {
-            using (var tile = (Bitmap)Image.FromFile(this.settings.InputFiles[this.randomGenerator.Next(0, this.settings.InputFiles.Count)].FullName))
+            using (var tile = Image.FromFile(this.filesEnumerator.GetNextFileName()))
             {
                 var tileTransformerSettings = new TileTransformerSettings
                                                   {
