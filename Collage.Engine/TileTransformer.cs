@@ -14,6 +14,16 @@
 
         public Image Transform(Image tile, TileTransformerSettings settings)
         {
+            if (settings == null)
+            {
+                throw new ArgumentNullException("settings");
+            }
+
+            if (tile == null)
+            {
+                throw new ArgumentNullException("tile");
+            }
+
             var tileScaled = tile.Scale(settings.ScalePercent);
                 
             if (settings.RotateAndFlipRandomly)

@@ -12,6 +12,7 @@
         private readonly CollageSettings settings;
         private readonly TileTransformer tileTransformer;
         private readonly IFilesEnumerator filesEnumerator;
+        private readonly CollageSaver collageSaver;
 
         public CollageGenerator(CollageSettings settings)
         {
@@ -21,10 +22,11 @@
             }
 
             this.settings = settings;
-            this.progressCounter = new ProgressCounter(settings.DimensionSettings.NumberOfRows, settings.DimensionSettings.NumberOfColumns);
+            this.progressCounter = new ProgressCounter(settings.Dimensions.NumberOfRows, settings.Dimensions.NumberOfColumns);
             this.randomGenerator = new RandomGenerator();
             this.tileTransformer = new TileTransformer();
             this.filesEnumerator = new DateFilesEnumerator(settings.InputFiles);
+            this.collageSaver = new CollageSaver(settings.OutputDirectory);
         }
 
         public bool IsBusy { get; private set; }
@@ -118,15 +120,13 @@
         {
             isCancelled = false;
 
-            using (var bitmapCollage = new Bitmap(
-                this.settings.DimensionSettings.TotalWidth,
-                this.settings.DimensionSettings.TotalHeight))
+            using (var bitmapCollage = new Bitmap(this.settings.Dimensions.TotalWidth, this.settings.Dimensions.TotalHeight))
             {
                 using (Graphics graphics = bitmapCollage.CreateGraphics())
                 {
-                    for (int rowsCounter = 0; rowsCounter < this.settings.DimensionSettings.NumberOfRows; rowsCounter++)
+                    for (int rowsCounter = 0; rowsCounter < this.settings.Dimensions.NumberOfRows; rowsCounter++)
                     {
-                        for (int colsCounter = 0; colsCounter < this.settings.DimensionSettings.NumberOfColumns; colsCounter++)
+                        for (int colsCounter = 0; colsCounter < this.settings.Dimensions.NumberOfColumns; colsCounter++)
                         {
                             this.ReportProgress(async, colsCounter, rowsCounter);
                             HandleCancellation(context, ref isCancelled);
@@ -136,7 +136,7 @@
                     }
                 }
 
-                new CollageSaver(this.settings.OutputDirectory).Save(bitmapCollage);
+                this.collageSaver.Save(bitmapCollage);
             }
         }
 
@@ -148,17 +148,17 @@
                                                   {
                                                       GraphicsDpiX = graphics.DpiX,
                                                       GraphicsDpiY = graphics.DpiY,
-                                                      RotateAndFlipRandomly = settings.AdditionalSettings.RotateAndFlipRandomly,
-                                                      ScalePercent = settings.DimensionSettings.TileScalePercent
+                                                      RotateAndFlipRandomly = settings.Additional.RotateAndFlipRandomly,
+                                                      ScalePercent = settings.Dimensions.TileScalePercent
                                                   };
 
                 using (var tileTransformed = this.tileTransformer.Transform(tile, tileTransformerSettings))
                 {
                     graphics.DrawImage(
                        tileTransformed,
-                       colsCounter * this.settings.DimensionSettings.TileWidth,
-                       rowsCounter * this.settings.DimensionSettings.TileHeight,
-                       new Rectangle(this.GetTileXY(tileTransformed), new Size(this.settings.DimensionSettings.TileWidth, this.settings.DimensionSettings.TileHeight)),
+                       colsCounter * this.settings.Dimensions.TileWidth,
+                       rowsCounter * this.settings.Dimensions.TileHeight,
+                       new Rectangle(this.GetTilePosition(tile.Size), new Size(this.settings.Dimensions.TileWidth, this.settings.Dimensions.TileHeight)),
                        GraphicsUnit.Pixel);   
                 }
             }
@@ -185,14 +185,19 @@
             }
         }
 
-        private Point GetTileXY(Image tile)
+        private Point GetTilePosition(Size tileSize)
         {
-            int x = (tile.Width > this.settings.DimensionSettings.TileWidth && this.settings.AdditionalSettings.CutTileRandomly) ?
-                        this.randomGenerator.Next(0, tile.Width - this.settings.DimensionSettings.TileWidth) : 0;
+            int x = 0, y = 0;
 
-            int y = (tile.Height > this.settings.DimensionSettings.TileHeight && this.settings.AdditionalSettings.CutTileRandomly) ?
-                this.randomGenerator.Next(0, tile.Height - this.settings.DimensionSettings.TileHeight) : 0;
+            if (this.settings.Additional.CutTileRandomly)
+            {
+                x = (tileSize.Width > this.settings.Dimensions.TileWidth) ?
+                    this.randomGenerator.Next(0, tileSize.Width - this.settings.Dimensions.TileWidth) : 0;
 
+                y = (tileSize.Height > this.settings.Dimensions.TileHeight) ?
+                    this.randomGenerator.Next(0, tileSize.Height - this.settings.Dimensions.TileHeight) : 0;
+            }
+            
             return new Point(x, y);
         }
     }

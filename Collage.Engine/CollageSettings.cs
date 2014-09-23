@@ -12,15 +12,15 @@ namespace Collage.Engine
             List<FileInfo> inputFiles, 
             DirectoryInfo outputDirectory)
         {
-            this.DimensionSettings = collageDimensionSettings;
-            this.AdditionalSettings = additionalCollageSettings;
+            this.Dimensions = collageDimensionSettings;
+            this.Additional = additionalCollageSettings;
             this.InputFiles = inputFiles;
             this.OutputDirectory = outputDirectory;
         }
 
-        public AdditionalCollageSettings AdditionalSettings { get; set; }
+        public AdditionalCollageSettings Additional { get; set; }
 
-        public CollageDimensionSettings DimensionSettings { get; set; }
+        public CollageDimensionSettings Dimensions { get; set; }
 
         public List<FileInfo> InputFiles { get; set; }
 

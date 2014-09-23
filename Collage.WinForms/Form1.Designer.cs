@@ -50,9 +50,9 @@ namespace Collage
             this.nudItemHeight = new System.Windows.Forms.NumericUpDown();
             this.nudItemWidth = new System.Windows.Forms.NumericUpDown();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cbCutRandomly = new System.Windows.Forms.CheckBox();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.cbCutRandomly = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudScalePercent)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudColumns)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudRows)).BeginInit();
@@ -253,7 +253,7 @@ namespace Collage
             0});
             this.nudItemHeight.Location = new System.Drawing.Point(173, 44);
             this.nudItemHeight.Maximum = new decimal(new int[] {
-            800,
+            2000,
             0,
             0,
             0});
@@ -277,7 +277,7 @@ namespace Collage
             0});
             this.nudItemWidth.Location = new System.Drawing.Point(173, 20);
             this.nudItemWidth.Maximum = new decimal(new int[] {
-            800,
+            2000,
             0,
             0,
             0});
@@ -315,6 +315,16 @@ namespace Collage
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Parameters";
             // 
+            // cbCutRandomly
+            // 
+            this.cbCutRandomly.AutoSize = true;
+            this.cbCutRandomly.Location = new System.Drawing.Point(240, 54);
+            this.cbCutRandomly.Name = "cbCutRandomly";
+            this.cbCutRandomly.Size = new System.Drawing.Size(108, 17);
+            this.cbCutRandomly.TabIndex = 23;
+            this.cbCutRandomly.Text = "Cut tiles randomly";
+            this.cbCutRandomly.UseVisualStyleBackColor = true;
+            // 
             // progressBar1
             // 
             this.progressBar1.Location = new System.Drawing.Point(3, 255);
@@ -332,16 +342,6 @@ namespace Collage
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
-            // 
-            // cbCutRandomly
-            // 
-            this.cbCutRandomly.AutoSize = true;
-            this.cbCutRandomly.Location = new System.Drawing.Point(240, 54);
-            this.cbCutRandomly.Name = "cbCutRandomly";
-            this.cbCutRandomly.Size = new System.Drawing.Size(108, 17);
-            this.cbCutRandomly.TabIndex = 23;
-            this.cbCutRandomly.Text = "Cut tiles randomly";
-            this.cbCutRandomly.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 

@@ -25,11 +25,9 @@
         {
             string fileName = this.filesListOrderedByDate[this.currentFileIndex].FullName;
 
-            if (this.currentFileIndex < this.filesListOrderedByDate.Count)
-            {
-                this.currentFileIndex++;
-            }
-            else
+            this.currentFileIndex++;
+
+            if (this.currentFileIndex >= this.filesListOrderedByDate.Count)
             {
                 this.currentFileIndex = 0;
             }
