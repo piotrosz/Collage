@@ -3,7 +3,7 @@
     using System;
     using System.IO;
 
-    public class FileNameCreator
+    internal class FileNameCreator
     {
         public DirectoryInfo OutputDirectory { get; private set; }
 

@@ -5,7 +5,7 @@
     using System.Drawing.Imaging;
     using System.IO;
 
-    public class CollageSaver
+    internal class CollageSaver
     {
         private readonly FileNameCreator fileNameCreator;
 

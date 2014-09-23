@@ -4,7 +4,7 @@
     using System.Drawing.Drawing2D;
     using System.Drawing.Imaging;
 
-    public static class ImageExtensions
+    internal static class ImageExtensions
     {
         public static void RotateFlipRandom(this Image image, IRandomGenerator random)
         {

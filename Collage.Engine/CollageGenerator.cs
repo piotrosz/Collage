@@ -10,12 +10,19 @@
         private readonly ProgressCounter progressCounter;
         private readonly IRandomGenerator randomGenerator;
         private readonly CollageSettings settings;
+        private readonly TileTransformer tileTransformer;
 
         public CollageGenerator(CollageSettings settings)
         {
+            if (settings == null)
+            {
+                throw new ArgumentNullException("settings");
+            }
+
             this.settings = settings;
             this.progressCounter = new ProgressCounter(settings.DimensionSettings.NumberOfRows, settings.DimensionSettings.NumberOfColumns);
             this.randomGenerator = new RandomGenerator();
+            this.tileTransformer = new TileTransformer();
         }
 
         public bool IsBusy { get; private set; }
@@ -131,6 +138,30 @@
             }
         }
 
+        private void DrawTile(Graphics graphics, int colsCounter, int rowsCounter)
+        {
+            using (var tile = (Bitmap)Image.FromFile(this.settings.InputFiles[this.randomGenerator.Next(0, this.settings.InputFiles.Count)].FullName))
+            {
+                var tileTransformerSettings = new TileTransformerSettings
+                                                  {
+                                                      GraphicsDpiX = graphics.DpiX,
+                                                      GraphicsDpiY = graphics.DpiY,
+                                                      RotateAndFlipRandomly = settings.AdditionalSettings.RotateAndFlipRandomly,
+                                                      ScalePercent = settings.DimensionSettings.TileScalePercent
+                                                  };
+
+                using (var tileTransformed = this.tileTransformer.Transform(tile, tileTransformerSettings))
+                {
+                    graphics.DrawImage(
+                       tileTransformed,
+                       colsCounter * this.settings.DimensionSettings.TileWidth,
+                       rowsCounter * this.settings.DimensionSettings.TileHeight,
+                       new Rectangle(this.GetTileXY(tileTransformed), new Size(this.settings.DimensionSettings.TileWidth, this.settings.DimensionSettings.TileHeight)),
+                       GraphicsUnit.Pixel);   
+                }
+            }
+        }
+
         private static void HandleCancellation(CreateCollageAsyncContext context, ref bool isCancelled)
         {
             if (context != null)
@@ -149,33 +180,6 @@
                 int progressPercentage = this.progressCounter.GetProgressPercentage(colsCounter, rowsCounter);
                 var args = new ProgressChangedEventArgs(progressPercentage, null);
                 async.Post(e => this.OnCreateProgressChanged((ProgressChangedEventArgs)e), args);
-            }
-        }
-
-        private void DrawTile(Graphics graphics, int colsCounter, int rowsCounter)
-        {
-            using (var tile = (Bitmap)Image.FromFile(this.settings.InputFiles[this.randomGenerator.Next(0, this.settings.InputFiles.Count)].FullName))
-            {
-                using (Bitmap tileScaled = tile.Scale(this.settings.DimensionSettings.TileScalePercent))
-                {
-                    if (this.settings.AdditionalSettings.RotateAndFlipRandomly)
-                    {
-                        tileScaled.RotateFlipRandom(this.randomGenerator);
-                    }
-
-                    if (Math.Abs(tileScaled.HorizontalResolution - graphics.DpiX) > 0.01 ||
-                        Math.Abs(tileScaled.VerticalResolution - graphics.DpiY) > 0.01)
-                    {
-                        tileScaled.SetResolution(graphics.DpiX, graphics.DpiY);
-                    }
-
-                    graphics.DrawImage(
-                        tileScaled,
-                        colsCounter * this.settings.DimensionSettings.TileWidth,
-                        rowsCounter * this.settings.DimensionSettings.TileHeight,
-                        new Rectangle(this.GetTileXY(tileScaled), new Size(this.settings.DimensionSettings.TileWidth, this.settings.DimensionSettings.TileHeight)),
-                        GraphicsUnit.Pixel);
-                }
             }
         }
 

@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class ProgressCounter
+    internal class ProgressCounter
     {
         private readonly int totalNumberOfRows;
         private readonly int totalNumberOfColumns;
