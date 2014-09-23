@@ -9,18 +9,18 @@
     {
         private readonly ProgressCounter progressCounter;
         private readonly IRandomGenerator randomGenerator;
+        private readonly CollageSettings settings;
 
         public CollageGenerator(CollageSettings settings)
         {
-            this.Settings = settings;
+            this.settings = settings;
             this.progressCounter = new ProgressCounter(settings.DimensionSettings.NumberOfRows, settings.DimensionSettings.NumberOfColumns);
             this.randomGenerator = new RandomGenerator();
         }
 
-        private bool _isBusy;
-        public bool IsBusy { get { return _isBusy; } }
+        public bool IsBusy { get; private set; }
 
-        private readonly object _sync = new object();
+        private readonly object sync = new object();
 
         private delegate void CreateTaskWorkerDelegate(AsyncOperation async, CreateCollageAsyncContext asyncContext, out bool cancelled);
 
@@ -43,18 +43,16 @@
             }
         }
 
-        private CreateCollageAsyncContext _createTaskContext;
-
-        public CollageSettings Settings { get; set; }
+        private CreateCollageAsyncContext createTaskContext;
 
         public void CreateAsync()
         {
             var worker = new CreateTaskWorkerDelegate(CreateCollage);
             var completedCallback = new AsyncCallback(CreateTaskCompletedCallback);
 
-            lock (_sync)
+            lock (this.sync)
             {
-                if (_isBusy)
+                if (this.IsBusy)
                 {
                     throw new InvalidOperationException("The engine is currently busy.");
                 }
@@ -65,18 +63,18 @@
 
                 worker.BeginInvoke(async, context, out cancelled, completedCallback, async);
 
-                _isBusy = true;
-                _createTaskContext = context;
+                this.IsBusy = true;
+                this.createTaskContext = context;
             }
         }
 
         public void CancelAsync()
         {
-            lock (_sync)
+            lock (this.sync)
             {
-                if (_createTaskContext != null)
+                if (this.createTaskContext != null)
                 {
-                    _createTaskContext.Cancel();
+                    this.createTaskContext.Cancel();
                 }
             }
         }
@@ -89,9 +87,9 @@
             bool isCancelled;
             worker.EndInvoke(out isCancelled, asyncResult);
 
-            lock (_sync)
+            lock (this.sync)
             {
-                _isBusy = false;
+                this.IsBusy = false;
             }
 
             var completedArgs = new AsyncCompletedEventArgs(null, isCancelled, null);
@@ -112,14 +110,14 @@
             isCancelled = false;
 
             using (var bitmapCollage = new Bitmap(
-                this.Settings.DimensionSettings.TotalWidth,
-                this.Settings.DimensionSettings.TotalHeight))
+                this.settings.DimensionSettings.TotalWidth,
+                this.settings.DimensionSettings.TotalHeight))
             {
                 using (Graphics graphics = bitmapCollage.CreateGraphics())
                 {
-                    for (int rowsCounter = 0; rowsCounter < Settings.DimensionSettings.NumberOfRows; rowsCounter++)
+                    for (int rowsCounter = 0; rowsCounter < this.settings.DimensionSettings.NumberOfRows; rowsCounter++)
                     {
-                        for (int colsCounter = 0; colsCounter < Settings.DimensionSettings.NumberOfColumns; colsCounter++)
+                        for (int colsCounter = 0; colsCounter < this.settings.DimensionSettings.NumberOfColumns; colsCounter++)
                         {
                             this.ReportProgress(async, colsCounter, rowsCounter);
                             HandleCancellation(context, ref isCancelled);
@@ -129,7 +127,7 @@
                     }
                 }
 
-                new CollageSaver(this.Settings.OutputDirectory).Save(bitmapCollage);
+                new CollageSaver(this.settings.OutputDirectory).Save(bitmapCollage);
             }
         }
 
@@ -156,11 +154,11 @@
 
         private void DrawTile(Graphics graphics, int colsCounter, int rowsCounter)
         {
-            using (var tile = (Bitmap)Image.FromFile(Settings.InputFiles[this.randomGenerator.Next(0, Settings.InputFiles.Count)].FullName))
+            using (var tile = (Bitmap)Image.FromFile(this.settings.InputFiles[this.randomGenerator.Next(0, this.settings.InputFiles.Count)].FullName))
             {
-                using (Bitmap tileScaled = tile.Scale(Settings.DimensionSettings.TileScalePercent))
+                using (Bitmap tileScaled = tile.Scale(this.settings.DimensionSettings.TileScalePercent))
                 {
-                    if (this.Settings.AdditionalSettings.RotateAndFlipRandomly)
+                    if (this.settings.AdditionalSettings.RotateAndFlipRandomly)
                     {
                         tileScaled.RotateFlipRandom(this.randomGenerator);
                     }
@@ -173,21 +171,21 @@
 
                     graphics.DrawImage(
                         tileScaled,
-                        colsCounter * Settings.DimensionSettings.TileWidth,
-                        rowsCounter * Settings.DimensionSettings.TileHeight,
-                        new Rectangle(this.GetTileXY(tileScaled), new Size(Settings.DimensionSettings.TileWidth, Settings.DimensionSettings.TileHeight)),
+                        colsCounter * this.settings.DimensionSettings.TileWidth,
+                        rowsCounter * this.settings.DimensionSettings.TileHeight,
+                        new Rectangle(this.GetTileXY(tileScaled), new Size(this.settings.DimensionSettings.TileWidth, this.settings.DimensionSettings.TileHeight)),
                         GraphicsUnit.Pixel);
                 }
             }
         }
 
-        private Point GetTileXY(Bitmap tile)
+        private Point GetTileXY(Image tile)
         {
-            int x = (tile.Width > Settings.DimensionSettings.TileWidth && Settings.AdditionalSettings.CutTileRandomly) ?
-                        this.randomGenerator.Next(0, tile.Width - Settings.DimensionSettings.TileWidth) : 0;
+            int x = (tile.Width > this.settings.DimensionSettings.TileWidth && this.settings.AdditionalSettings.CutTileRandomly) ?
+                        this.randomGenerator.Next(0, tile.Width - this.settings.DimensionSettings.TileWidth) : 0;
 
-            int y = (tile.Height > Settings.DimensionSettings.TileHeight && Settings.AdditionalSettings.CutTileRandomly) ?
-                this.randomGenerator.Next(0, tile.Height - Settings.DimensionSettings.TileHeight) : 0;
+            int y = (tile.Height > this.settings.DimensionSettings.TileHeight && this.settings.AdditionalSettings.CutTileRandomly) ?
+                this.randomGenerator.Next(0, tile.Height - this.settings.DimensionSettings.TileHeight) : 0;
 
             return new Point(x, y);
         }
