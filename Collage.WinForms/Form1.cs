@@ -14,14 +14,13 @@ namespace Collage
         private readonly List<FileInfo> imagesList = new List<FileInfo>();
         private string outputDirectory = "";
 
-        private CollageEngine collage;
+        private CollageGenerator collage;
 
         public Form1()
         {
             InitializeComponent();
         }
 
-        // Shows dialog with .jpg images selection
         private void bntChooseDir_Click(object sender, EventArgs e)
         {
             openFileDialog1.ShowDialog();
@@ -31,7 +30,6 @@ namespace Collage
             btnCollage.Enabled = imagesList.Count > 0;
         }
 
-        // Shows dialog with output directory selection
         private void btnSelectOutputDir_Click(object sender, EventArgs e)
         {
             this.folderBrowserDialog1.ShowDialog();
@@ -58,12 +56,12 @@ namespace Collage
                             NumberOfRows = Convert.ToInt32(nudRows.Value),
                             TileHeight = Convert.ToInt32(nudItemHeight.Value),
                             TileWidth = Convert.ToInt32(nudItemWidth.Value),
-                            TileScalePercent =new Percentage(Convert.ToInt32(nudScalePercent.Value))
+                            TileScalePercent = new Percentage(Convert.ToInt32(nudScalePercent.Value))
                         },
                         new AdditionalCollageSettings
                             {
-                                RotateAndFlipRandomly = cbRotateAndFlip.Checked
-                                
+                                RotateAndFlipRandomly = cbRotateAndFlip.Checked,
+                                CutTileRandomly = cbCutRandomly.Checked
                             }, 
                         imagesList,
                         new DirectoryInfo(folderBrowserDialog1.SelectedPath)
@@ -116,7 +114,7 @@ namespace Collage
 
         private void CreateCollage(CollageSettings settings)
         {
-            this.collage = new CollageEngine(settings);
+            this.collage = new CollageGenerator(settings);
             
             collage.CreateCompleted += this.collage_CreateCompleted;
             collage.CreateProgressChanged += this.collage_CreateProgressChanged;

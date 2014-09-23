@@ -79,7 +79,7 @@ namespace CollageConsole
                     imagesList,
                     new DirectoryInfo(outputDirectory));
 
-            var collage = new CollageEngine(collageSettings);
+            var collage = new CollageGenerator(collageSettings);
 
             collage.Create();
 

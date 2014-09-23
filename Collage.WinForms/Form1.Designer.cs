@@ -52,6 +52,7 @@ namespace Collage
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.cbCutRandomly = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudScalePercent)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudColumns)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudRows)).BeginInit();
@@ -159,7 +160,7 @@ namespace Collage
             // cbRotateAndFlip
             // 
             this.cbRotateAndFlip.AutoSize = true;
-            this.cbRotateAndFlip.Location = new System.Drawing.Point(235, 46);
+            this.cbRotateAndFlip.Location = new System.Drawing.Point(239, 35);
             this.cbRotateAndFlip.Name = "cbRotateAndFlip";
             this.cbRotateAndFlip.Size = new System.Drawing.Size(116, 17);
             this.cbRotateAndFlip.TabIndex = 14;
@@ -180,7 +181,7 @@ namespace Collage
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(241, 22);
+            this.label7.Location = new System.Drawing.Point(241, 12);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(37, 13);
             this.label7.TabIndex = 18;
@@ -189,7 +190,7 @@ namespace Collage
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(326, 22);
+            this.label8.Location = new System.Drawing.Point(326, 13);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(15, 13);
             this.label8.TabIndex = 19;
@@ -203,7 +204,7 @@ namespace Collage
             0,
             0,
             0});
-            this.nudScalePercent.Location = new System.Drawing.Point(284, 18);
+            this.nudScalePercent.Location = new System.Drawing.Point(281, 10);
             this.nudScalePercent.Minimum = new decimal(new int[] {
             5,
             0,
@@ -292,6 +293,7 @@ namespace Collage
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.cbCutRandomly);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.nudItemWidth);
             this.groupBox1.Controls.Add(this.label1);
@@ -330,6 +332,16 @@ namespace Collage
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // 
+            // cbCutRandomly
+            // 
+            this.cbCutRandomly.AutoSize = true;
+            this.cbCutRandomly.Location = new System.Drawing.Point(240, 54);
+            this.cbCutRandomly.Name = "cbCutRandomly";
+            this.cbCutRandomly.Size = new System.Drawing.Size(108, 17);
+            this.cbCutRandomly.TabIndex = 23;
+            this.cbCutRandomly.Text = "Cut tiles randomly";
+            this.cbCutRandomly.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -383,6 +395,7 @@ namespace Collage
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.CheckBox cbCutRandomly;
     }
 }
 

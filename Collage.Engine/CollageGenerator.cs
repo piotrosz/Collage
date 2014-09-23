@@ -5,20 +5,20 @@
     using System.ComponentModel;
     using System.Runtime.Remoting.Messaging;
 
-    public class CollageEngine
+    public class CollageGenerator
     {
         private readonly ProgressCounter progressCounter;
+        private readonly IRandomGenerator randomGenerator;
 
-        public CollageEngine(CollageSettings settings)
+        public CollageGenerator(CollageSettings settings)
         {
             this.Settings = settings;
             this.progressCounter = new ProgressCounter(settings.DimensionSettings.NumberOfRows, settings.DimensionSettings.NumberOfColumns);
+            this.randomGenerator = new RandomGenerator();
         }
 
         private bool _isBusy;
         public bool IsBusy { get { return _isBusy; } }
-
-        private readonly Random _random = new Random();
 
         private readonly object _sync = new object();
 
@@ -156,13 +156,13 @@
 
         private void DrawTile(Graphics graphics, int colsCounter, int rowsCounter)
         {
-            using (var tile = (Bitmap)Image.FromFile(Settings.InputFiles[_random.Next(0, Settings.InputFiles.Count)].FullName))
+            using (var tile = (Bitmap)Image.FromFile(Settings.InputFiles[this.randomGenerator.Next(0, Settings.InputFiles.Count)].FullName))
             {
                 using (Bitmap tileScaled = tile.Scale(Settings.DimensionSettings.TileScalePercent))
                 {
                     if (this.Settings.AdditionalSettings.RotateAndFlipRandomly)
                     {
-                        tileScaled.RotateFlipRandom(_random);
+                        tileScaled.RotateFlipRandom(this.randomGenerator);
                     }
 
                     if (Math.Abs(tileScaled.HorizontalResolution - graphics.DpiX) > 0.01 ||
@@ -171,20 +171,25 @@
                         tileScaled.SetResolution(graphics.DpiX, graphics.DpiY);
                     }
 
-                    int randomX = (tileScaled.Width > Settings.DimensionSettings.TileWidth) ?
-                        _random.Next(0, tileScaled.Width - Settings.DimensionSettings.TileWidth) : 0;
-
-                    int randomY = (tileScaled.Height > Settings.DimensionSettings.TileHeight) ?
-                        _random.Next(0, tileScaled.Height - Settings.DimensionSettings.TileHeight) : 0;
-
                     graphics.DrawImage(
                         tileScaled,
                         colsCounter * Settings.DimensionSettings.TileWidth,
                         rowsCounter * Settings.DimensionSettings.TileHeight,
-                        new Rectangle(randomX, randomY, Settings.DimensionSettings.TileWidth, Settings.DimensionSettings.TileHeight),
+                        new Rectangle(this.GetTileXY(tileScaled), new Size(Settings.DimensionSettings.TileWidth, Settings.DimensionSettings.TileHeight)),
                         GraphicsUnit.Pixel);
                 }
             }
-        }  
+        }
+
+        private Point GetTileXY(Bitmap tile)
+        {
+            int x = (tile.Width > Settings.DimensionSettings.TileWidth && Settings.AdditionalSettings.CutTileRandomly) ?
+                        this.randomGenerator.Next(0, tile.Width - Settings.DimensionSettings.TileWidth) : 0;
+
+            int y = (tile.Height > Settings.DimensionSettings.TileHeight && Settings.AdditionalSettings.CutTileRandomly) ?
+                this.randomGenerator.Next(0, tile.Height - Settings.DimensionSettings.TileHeight) : 0;
+
+            return new Point(x, y);
+        }
     }
 }

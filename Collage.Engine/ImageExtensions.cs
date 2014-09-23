@@ -1,13 +1,12 @@
 ﻿namespace Collage.Engine
 {
-    using System;
     using System.Drawing;
     using System.Drawing.Drawing2D;
     using System.Drawing.Imaging;
 
     public static class ImageExtensions
     {
-        public static void RotateFlipRandom(this Image image, Random random)
+        public static void RotateFlipRandom(this Image image, IRandomGenerator random)
         {
             image.RotateFlip((RotateFlipType)random.Next(0, 7));
         }
