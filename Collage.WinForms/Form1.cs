@@ -62,7 +62,6 @@ namespace Collage
                         },
                         new AdditionalCollageSettings
                             {
-                                ConvertToGrayscale = false,
                                 RotateAndFlipRandomly = cbRotateAndFlip.Checked
                                 
                             }, 

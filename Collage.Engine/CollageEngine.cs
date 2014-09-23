@@ -129,14 +129,7 @@
                     }
                 }
 
-                Bitmap bitmapCollageTransformed = bitmapCollage;
-
-                if (Settings.AdditionalSettings.ConvertToGrayscale)
-                {
-                    bitmapCollageTransformed = bitmapCollage.ToGrayscale();
-                }
-
-                new CollageSaver(this.Settings.OutputDirectory).Save(bitmapCollageTransformed);
+                new CollageSaver(this.Settings.OutputDirectory).Save(bitmapCollage);
             }
         }
 

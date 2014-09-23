@@ -19,7 +19,6 @@ namespace CollageConsole
         static int tileHeight = 5, tileWidth = 5;
         static int numberOfRows = 5, numberOfColums = 5;
         static bool rotateAndFlipRandomly;
-        static bool convertToGrayscale;
         static int scalePercent = 50;
 
         static bool tileHeightParsed = true, tileWidthParsed = true,
@@ -75,7 +74,6 @@ namespace CollageConsole
                         },
                     new AdditionalCollageSettings
                         {
-                            ConvertToGrayscale = convertToGrayscale,
                             RotateAndFlipRandomly = rotateAndFlipRandomly
                         },
                     imagesList,
@@ -163,11 +161,6 @@ namespace CollageConsole
                     "rf|RotateFlip",
                     "rotate and flip collage tiles. Default is false.",
                     x => rotateAndFlipRandomly = x != null
-                },
-                {
-                    "g|grayscale",
-                    "convert to grayscale.",
-                    x => convertToGrayscale = x != null
                 },
                 {
                     "s|scale=",
